@@ -172,7 +172,7 @@ export default function CommandDock({
             <Section label="Display">
               <ToggleRow
                 icon={<Film className="h-5 w-5" />}
-                label="Cyber background (BG Cyber)"
+                label="Background video"
                 on={bgVideoOn}
                 onToggle={() => { play('icon-select'); onToggleBgVideo() }}
               />

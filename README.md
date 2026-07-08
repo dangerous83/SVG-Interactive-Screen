@@ -120,16 +120,13 @@ public/assets/
 └── sounds/                        ← OPTIONAL (see below)
 ```
 
-### Background (BG Cyber)
-The dashboard backdrop is a **live, looping animated cyber HUD** rendered in code
-(`src/components/CyberScene.tsx`): deep‑navy gradient, scrolling grid, radar sweep + rings,
-glowing cyan/orange network nodes, drifting particles, vertical data streams, and a scan
-sweep. It always displays and loops — **no video file, codec, or autoplay dependency** —
-and stays smooth at 4K. Tune colors/density in `CyberScene.tsx`; toggle it under
-**Settings → Display → Cyber background**.
-
-> The original `UAE flag.mp4` remains in the top‑level `asset/` folder if you ever want a
-> flag video backdrop instead.
+### Background
+The dashboard backdrop is a **looping background video** —
+`public/assets/video/uae-flag.mp4` (muted + looped). Replace that file (same name) to change
+it; use a web‑friendly **H.264/AAC MP4**. Toggle it under **Settings → Display → Background
+video**. If a browser can't decode the video, a **live animated cyber scene**
+(`src/components/CyberScene.tsx`: radar sweep, network nodes, particles, data streams)
+renders instead so the backdrop is never blank.
 
 ### Logos
 Replace the files in `public/assets/logos/`. If an image is missing, the UI shows a

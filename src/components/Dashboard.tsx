@@ -21,6 +21,10 @@ import { useSound } from '../hooks/useSound'
   Keyboard: ESC collapses/closes · Arrows move focus around the ring · Enter opens.
 */
 
+// Background video (the uploaded clip). Replace /public/assets/video/uae-flag.mp4
+// to change it. If a browser can't decode it, the animated cyber scene shows.
+const BG_VIDEO = './assets/video/uae-flag.mp4'
+
 interface DashboardProps {
   onExplore: () => void
   onOpenTeam: () => void
@@ -61,7 +65,8 @@ export default function Dashboard({
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [focusIndex, setFocusIndex] = useState<number>(-1)
   const [revealed, setRevealed] = useState(false) // modules hidden until the core is tapped
-  const [bgOn, setBgOn] = useState(true) // animated cyber background on/off
+  const [bgOn, setBgOn] = useState(true) // background on/off
+  const [videoOk, setVideoOk] = useState(true) // false once the video errors (use cyber fallback)
 
   // Pre-compute node placements on the two arcs.
   const placed = useMemo<Placed[]>(() => {
@@ -144,16 +149,32 @@ export default function Dashboard({
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
-      {/* ── Cyber backdrop (live animated loop) ───────────────────────────── */}
+      {/* ── Background: uploaded video, with the animated cyber scene as fallback ── */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        {bgOn && <CyberScene />}
-        {/* Slight extra dim when the ring is open (keeps icons crisp) */}
+        {bgOn &&
+          (videoOk ? (
+            <video
+              className="h-full w-full object-cover"
+              src={BG_VIDEO}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              aria-hidden="true"
+              onError={() => setVideoOk(false)}
+              style={{ backgroundColor: '#03060f' }}
+            />
+          ) : (
+            <CyberScene />
+          ))}
+        {/* Legibility overlay — a bit stronger once the ring opens so icons stay crisp */}
         <motion.div
           className="absolute inset-0"
-          animate={{ backgroundColor: revealed ? 'rgba(3,6,15,0.45)' : 'rgba(3,6,15,0.12)' }}
+          animate={{ backgroundColor: revealed ? 'rgba(3,6,15,0.6)' : 'rgba(3,6,15,0.3)' }}
           transition={{ duration: 0.7 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-void/30 via-transparent to-void/65" />
+        <div className="absolute inset-0 bg-gradient-to-b from-void/40 via-transparent to-void/70" />
       </div>
 
       {/* ── Orbital ring region ───────────────────────────────────────────── */}
