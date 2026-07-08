@@ -74,12 +74,12 @@ Tips for a permanent 4K touch kiosk:
 
 | Action | Control |
 | --- | --- |
-| Open a module brief | **Tap** a SecureVisa (left) or ITSEC (right) module node |
-| Close a panel | **Tap ✕**, or press **Esc** |
-| Switch focus between nodes | **Arrow keys** (← / → switch rails, ↑ / ↓ move within a rail) |
+| Open a module brief | **Tap** a module icon node on the orbital ring (SecureVisa left / ITSEC right) |
+| Close a panel | **Tap ✕**, tap the dimmed backdrop, or press **Esc** |
+| Move focus around the ring | **Arrow keys** (← / ↑ previous node, → / ↓ next node) |
 | Open the focused node | **Enter** |
-| Explore Ecosystem | Center button, or tap the holographic **CORE** |
-| Team Command grid | **View All Members** in the bottom carousel |
+| Explore Ecosystem | Bottom button, or tap the holographic **CORE** |
+| Team Command grid | **Command Team** button (bottom controls) — opens its own page |
 | Presentation Mode | Center button — auto‑plays every module (~6 s each) with prev / pause / next / exit; **Space** pauses, **← / →** step, **Esc** exits |
 | Fullscreen / kiosk | ⤢ button (top‑right) |
 | Sound | **SOUND OFF/ON** toggle (top‑right) — audio is **muted by default** |
@@ -177,12 +177,12 @@ in `tailwind.config.js` (`itsec-blue #0075c9`, `itsec-orange #d2451e`, `sv-cyan`
         ├── SoundManager.tsx       # mute / un-mute toggle
         ├── CyberBackground.tsx    # grid + particles + radar + glow
         ├── HolographicCore.tsx    # central rotating network core (SVG)
-        ├── OrbitalIcon.tsx        # interactive module node
+        ├── OrbitalIcon.tsx        # circular module icon-node on the orbital ring
         ├── InfoPanel.tsx          # cinematic module panel (scan reveal)
-        ├── Dashboard.tsx          # home view + keyboard nav + presentation
+        ├── Dashboard.tsx          # orbital home view + keyboard nav + presentation
         ├── EcosystemMap.tsx       # two connected pillars view
-        ├── TeamCarousel.tsx       # bottom team strip
-        ├── TeamCommand.tsx        # full team grid + filters
+        ├── TeamCarousel.tsx       # optional compact team strip (not on the dashboard)
+        ├── TeamCommand.tsx        # full team grid + filters (opened via Command Team)
         ├── MemberCard.tsx         # expandable member card
         ├── MemberAvatar.tsx       # photo w/ initials fallback
         └── BrandLogo.tsx          # logo w/ text fallback
@@ -198,5 +198,21 @@ in `tailwind.config.js` (`itsec-blue #0075c9`, `itsec-orange #d2451e`, `sv-cyan`
   touchscreen PC.
 - Images are lazy‑loaded; the production bundle is ~100 KB gzipped JS.
 - Honors `prefers-reduced-motion`.
+
+---
+
+## 8. Live preview (GitHub Pages)
+
+`.github/workflows/deploy-pages.yml` builds the app and publishes `dist/` to GitHub
+Pages on every push to `main` (and on manual **Run workflow**). The live URL is:
+
+> https://dangerous83.github.io/SVG-Interactive-Screen/
+
+**One‑time setting (important):** in the repo, go to **Settings → Pages → Build and
+deployment → Source** and select **GitHub Actions**. If Source is left on *“Deploy from a
+branch”*, GitHub also runs its own Jekyll build that publishes the raw, uncompiled
+source and can overwrite this workflow's compiled output — leaving the page blank. This
+app is compiled (React/TypeScript), so it must be built before serving; the workflow does
+that, the branch‑source Jekyll build does not.
 - **No external API or internet connection required at runtime** (fonts degrade
   gracefully offline).
