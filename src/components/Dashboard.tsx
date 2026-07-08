@@ -85,7 +85,24 @@ export default function Dashboard({
     return out
   }, [])
 
-  const selectModule = useCallback((id: string) => setSelectedId(id), [])
+  // Most nodes open a command brief; a few navigate to their own screen.
+  const selectModule = useCallback(
+    (id: string) => {
+      const m = allModules.find((x) => x.id === id)
+      if (m?.route === 'team') {
+        play('transition-whoosh')
+        onOpenTeam()
+        return
+      }
+      if (m?.route === 'ecosystem') {
+        play('transition-whoosh')
+        onExplore()
+        return
+      }
+      setSelectedId(id)
+    },
+    [onOpenTeam, onExplore, play],
+  )
   const closePanel = useCallback(() => setSelectedId(null), [])
 
   // Tapping the core toggles the module ring open/closed with a strong effect.
