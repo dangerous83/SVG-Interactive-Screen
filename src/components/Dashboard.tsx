@@ -20,15 +20,18 @@ import { useSound } from '../hooks/useSound'
   Keyboard: ESC collapses/closes · Arrows move focus around the ring · Enter opens.
 */
 
-// Background video (UAE flag) — /public/assets/video/uae-flag.mp4. Replace that
-// file (same name) to change the backdrop.
-const BG_VIDEO = './assets/video/uae-flag.mp4'
+// Optional cyber background video — drop /public/assets/video/bg-cyber.mp4 to use
+// it. If the file is absent (or can't decode), the animated cyber background
+// (grid / particles / radar) shows instead.
+const BG_VIDEO = './assets/video/bg-cyber.mp4'
 
 interface DashboardProps {
   onExplore: () => void
   onOpenTeam: () => void
   theme: ThemeName
   onCycleTheme: () => void
+  isFullscreen: boolean
+  onToggleFullscreen: () => void
 }
 
 /** Angular position (degrees, 0°=right, 90°=up) for each node on its arc. */
@@ -38,10 +41,10 @@ function arcAngles(count: number, from: number, to: number): number[] {
   return Array.from({ length: count }, (_, i) => from + step * i)
 }
 
-// The ITSEC arc has 7 nodes vs SecureVisa's 6, so it uses a wider angular sweep
-// to keep the spacing (node density) visually consistent between the two sides.
+// Both arcs are vertically symmetric (mirrored top/bottom) for a balanced,
+// professional ring: SecureVisa on the left, ITSEC on the right.
 const RX = 38 // horizontal radius (% of ring area)
-const RY = 36 // vertical radius (% of ring area)
+const RY = 35 // vertical radius (% of ring area)
 
 interface Placed {
   module: (typeof allModules)[number]
@@ -50,22 +53,30 @@ interface Placed {
   top: number
 }
 
-export default function Dashboard({ onExplore, onOpenTeam, theme, onCycleTheme }: DashboardProps) {
+export default function Dashboard({
+  onExplore,
+  onOpenTeam,
+  theme,
+  onCycleTheme,
+  isFullscreen,
+  onToggleFullscreen,
+}: DashboardProps) {
   const { play } = useSound()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [focusIndex, setFocusIndex] = useState<number>(-1)
   const [revealed, setRevealed] = useState(false) // modules hidden until the core is tapped
   const [bgVideoOn, setBgVideoOn] = useState(true)
+  const [bgVideoOk, setBgVideoOk] = useState(true) // false once the video errors (missing/undecodable)
 
   // Pre-compute node placements on the two arcs.
   const placed = useMemo<Placed[]>(() => {
     const out: Placed[] = []
-    const leftAngles = arcAngles(securevisaModules.length, 122, 238)
+    const leftAngles = arcAngles(securevisaModules.length, 105, 255)
     securevisaModules.forEach((m, i) => {
       const a = (leftAngles[i] * Math.PI) / 180
       out.push({ module: m, index: out.length, left: 50 + RX * Math.cos(a), top: 50 - RY * Math.sin(a) })
     })
-    const rightAngles = arcAngles(itsecModules.length, 70, -70)
+    const rightAngles = arcAngles(itsecModules.length, 75, -75)
     itsecModules.forEach((m, i) => {
       const a = (rightAngles[i] * Math.PI) / 180
       out.push({ module: m, index: out.length, left: 50 + RX * Math.cos(a), top: 50 - RY * Math.sin(a) })
@@ -138,9 +149,12 @@ export default function Dashboard({ onExplore, onOpenTeam, theme, onCycleTheme }
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
-      {/* ── UAE flag video backdrop ───────────────────────────────────────── */}
+      {/* ── Cyber backdrop ────────────────────────────────────────────────
+          Optional bg-cyber.mp4 on top of the animated cyber background (which
+          renders app-wide behind this screen). If the video is missing/undecodable
+          the animated cyber background simply shows through. */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        {bgVideoOn && (
+        {bgVideoOn && bgVideoOk && (
           <video
             className="h-full w-full object-cover"
             src={BG_VIDEO}
@@ -150,28 +164,26 @@ export default function Dashboard({ onExplore, onOpenTeam, theme, onCycleTheme }
             playsInline
             preload="auto"
             aria-hidden="true"
-            style={{ backgroundColor: '#03060f' }}
+            onError={() => setBgVideoOk(false)}
           />
         )}
+        {/* Light vignette + extra dim when the ring is open (keeps icons crisp) */}
         <motion.div
           className="absolute inset-0"
-          animate={{ backgroundColor: revealed ? 'rgba(3,6,15,0.82)' : 'rgba(3,6,15,0.42)' }}
+          animate={{ backgroundColor: revealed ? 'rgba(3,6,15,0.5)' : 'rgba(3,6,15,0.2)' }}
           transition={{ duration: 0.7 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-void/60 via-transparent to-void/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-void/40 via-transparent to-void/70" />
       </div>
 
       {/* ── Orbital ring region ───────────────────────────────────────────── */}
       <div className="relative z-10 flex-1">
-        {/* Decorative orbit rings behind the nodes */}
+        {/* Decorative orbit rings behind the nodes (static) */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="aspect-square h-[86%] animate-spin-slow rounded-full border border-sv-cyan/10" />
+          <div className="aspect-square h-[86%] rounded-full border border-sv-cyan/10" />
         </div>
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div
-            className="aspect-square h-[70%] animate-spin-reverse rounded-full border border-dashed border-white/5"
-            style={{ animationDuration: '60s' }}
-          />
+          <div className="aspect-square h-[70%] rounded-full border border-dashed border-white/5" />
         </div>
 
         {/* High-tech reveal pulse (one-shot each time the ring opens) */}
@@ -257,6 +269,8 @@ export default function Dashboard({ onExplore, onOpenTeam, theme, onCycleTheme }
               onOpenEcosystem={onExplore}
               bgVideoOn={bgVideoOn}
               onToggleBgVideo={() => setBgVideoOn((v) => !v)}
+              isFullscreen={isFullscreen}
+              onToggleFullscreen={onToggleFullscreen}
             />
           )}
         </AnimatePresence>

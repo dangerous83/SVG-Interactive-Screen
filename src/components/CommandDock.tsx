@@ -5,6 +5,8 @@ import {
   Film,
   Home,
   Keyboard,
+  Maximize2,
+  Minimize2,
   Network,
   Palette,
   Search,
@@ -37,6 +39,8 @@ interface CommandDockProps {
   onOpenEcosystem: () => void
   bgVideoOn: boolean
   onToggleBgVideo: () => void
+  isFullscreen: boolean
+  onToggleFullscreen: () => void
 }
 
 export default function CommandDock({
@@ -49,6 +53,8 @@ export default function CommandDock({
   onOpenEcosystem,
   bgVideoOn,
   onToggleBgVideo,
+  isFullscreen,
+  onToggleFullscreen,
 }: CommandDockProps) {
   const { play, muted, toggleMute, volume, setVolume } = useSound()
   const [open, setOpen] = useState<OpenPanel>(null)
@@ -166,7 +172,7 @@ export default function CommandDock({
             <Section label="Display">
               <ToggleRow
                 icon={<Film className="h-5 w-5" />}
-                label="Background video (UAE flag)"
+                label="Background video (BG Cyber)"
                 on={bgVideoOn}
                 onToggle={() => { play('icon-select'); onToggleBgVideo() }}
               />
@@ -175,6 +181,12 @@ export default function CommandDock({
                 label="Sound effects"
                 on={!muted}
                 onToggle={toggleMute}
+              />
+              <ToggleRow
+                icon={isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+                label="Fullscreen (kiosk)"
+                on={isFullscreen}
+                onToggle={() => { play('icon-select'); onToggleFullscreen() }}
               />
             </Section>
 

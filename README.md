@@ -83,8 +83,8 @@ Tips for a permanent 4K touch kiosk:
 | Command dock (appears with the ring) | **Home** (collapse to clean start) · **Theme** (cycle backdrop mood) · **Settings** · **Volume** · **Keyboards** (shortcuts) · **Search** |
 | Search modules | **Search** in the dock — command‑palette style; tap a result to open its brief |
 | Ecosystem Map / Team Command | **Settings → Views** in the dock |
-| Fullscreen / kiosk | ⤢ button (top‑right) |
-| Sound | **Volume** in the dock, or the top‑right toggle — audio is **on by default** (high‑tech effects); mute anytime |
+| Fullscreen / kiosk | **Settings → Display → Fullscreen** in the dock, or **F11** |
+| Sound | **Volume** in the dock (mute + level) — audio is **on by default** (high‑tech effects); mute anytime |
 
 > This screen is an **information display** for SecureVisa × ITSEC driven by touch —
 > there is no auto‑playing "presentation" mode.
@@ -118,15 +118,18 @@ public/assets/
 │   ├── john-montilla.webp
 │   └── manuelito-victoria.webp
 ├── video/
-│   └── uae-flag.mp4               ← starting/background video (dashboard backdrop)
+│   ├── bg-cyber.mp4               ← OPTIONAL cyber background video (dashboard backdrop)
+│   └── uae-flag.mp4               ← previous flag backdrop (kept; unused by default)
 └── sounds/                        ← OPTIONAL (see below)
 ```
 
-### Background video
-The dashboard's clean start screen plays **`public/assets/video/uae-flag.mp4`** as a
-prominent backdrop (dimmed once the module ring opens). Replace that file (same name) to
-change it. Use a web‑friendly **H.264/AAC MP4**; the element is muted + looped for
-autoplay. If a browser can't decode the file, it falls back to the dark navy background.
+### Background
+The dashboard backdrop is the built‑in **animated cyber background** (grid, particles,
+radar, glow) — no asset required. To use a **cyber video** instead, drop a web‑friendly
+**H.264/AAC MP4** at **`public/assets/video/bg-cyber.mp4`**; it autoplays (muted + looped)
+over the animated background. If the file is missing or a browser can't decode it, the
+animated cyber background simply shows through. Toggle it under **Settings → Display →
+Background video**.
 
 ### Logos
 Replace the files in `public/assets/logos/`. If an image is missing, the UI shows a

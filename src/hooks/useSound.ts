@@ -57,18 +57,19 @@ interface SynthSpec {
   sweepTo?: number // optional glide target for whooshes
 }
 
+// Gains raised across the board for a stronger, more present high-tech feel.
 const SYNTH: Record<SoundName, SynthSpec> = {
-  'boot-start': { type: 'sine', notes: [220, 330, 440, 660], duration: 0.9, gain: 0.18 },
-  'hover-soft': { type: 'sine', notes: [880], duration: 0.06, gain: 0.05 },
-  'icon-select': { type: 'triangle', notes: [523.25, 783.99], duration: 0.14, gain: 0.12 },
-  'panel-open': { type: 'sine', notes: [392, 587.33, 880], duration: 0.35, gain: 0.12 },
-  'panel-close': { type: 'sine', notes: [880, 587.33, 392], duration: 0.28, gain: 0.1 },
-  'transition-whoosh': { type: 'sawtooth', notes: [180], duration: 0.4, gain: 0.06, sweepTo: 900 },
-  'success-confirm': { type: 'triangle', notes: [523.25, 659.25, 783.99], duration: 0.4, gain: 0.14 },
-  'error-alert': { type: 'square', notes: [220, 180], duration: 0.3, gain: 0.1 },
-  'ambient-loop': { type: 'sine', notes: [110], duration: 4, gain: 0.02 },
+  'boot-start': { type: 'sine', notes: [220, 330, 440, 660], duration: 0.9, gain: 0.32 },
+  'hover-soft': { type: 'sine', notes: [880], duration: 0.06, gain: 0.1 },
+  'icon-select': { type: 'triangle', notes: [523.25, 783.99], duration: 0.16, gain: 0.28 },
+  'panel-open': { type: 'sine', notes: [392, 587.33, 880], duration: 0.35, gain: 0.3 },
+  'panel-close': { type: 'sine', notes: [880, 587.33, 392], duration: 0.28, gain: 0.24 },
+  'transition-whoosh': { type: 'sawtooth', notes: [180], duration: 0.45, gain: 0.16, sweepTo: 1100 },
+  'success-confirm': { type: 'triangle', notes: [523.25, 659.25, 783.99], duration: 0.4, gain: 0.3 },
+  'error-alert': { type: 'square', notes: [220, 180], duration: 0.3, gain: 0.22 },
+  'ambient-loop': { type: 'sine', notes: [110], duration: 4, gain: 0.03 },
   // Strong high-tech "systems online" sweep for the module reveal.
-  reveal: { type: 'sawtooth', notes: [90, 220, 440, 880], duration: 0.75, gain: 0.2, sweepTo: 1600 },
+  reveal: { type: 'sawtooth', notes: [70, 180, 360, 720, 1080], duration: 0.85, gain: 0.42, sweepTo: 1800 },
 }
 
 class SoundEngine {
@@ -77,7 +78,7 @@ class SoundEngine {
   private buffers = new Map<SoundName, AudioBuffer | null>()
   private ambientNode: AudioBufferSourceNode | OscillatorNode | null = null
   private ambientGain: GainNode | null = null
-  private volume = 0.9
+  private volume = 1.0
   muted = false
 
   private ensureCtx() {
@@ -157,7 +158,7 @@ class SoundEngine {
   async play(name: SoundName) {
     if (this.muted) return
     const buf = await this.loadFile(name)
-    if (buf) this.playBuffer(buf, false, 0.6)
+    if (buf) this.playBuffer(buf, false, 0.95)
     else this.playSynth(name)
   }
 
@@ -232,7 +233,7 @@ export function SoundProvider({ children }: { children: ReactNode }) {
   // Sound is ON by default so the high-tech effects are heard; operators can
   // mute from the dock's Volume control or the status-bar toggle.
   const [muted, setMuted] = useState(false)
-  const [volume, setVolumeState] = useState(0.9)
+  const [volume, setVolumeState] = useState(1.0)
   const ambientOn = useRef(false)
 
   const toggleMute = useCallback(() => {
