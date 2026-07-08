@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import CyberBackground from './components/CyberBackground'
 import BootScreen from './components/BootScreen'
-import BrandLogo from './components/BrandLogo'
 import Dashboard from './components/Dashboard'
 import EcosystemMap from './components/EcosystemMap'
 import TeamCommand from './components/TeamCommand'
@@ -83,28 +82,6 @@ export default function App() {
 
       {screen !== 'boot' && (
         <>
-          {/* Minimal floating brand lockup (top panel removed) */}
-          <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="pointer-events-none absolute left-8 top-6 z-40 flex items-center gap-3 2xl:gap-4"
-          >
-            <BrandLogo
-              src="./assets/logos/securevisa-white.png"
-              alt="SecureVisa"
-              fallback="SECUREVISA"
-              className="h-8 w-auto object-contain 2xl:h-10"
-            />
-            <span className="text-xl font-thin text-sv-cyan/40">×</span>
-            <BrandLogo
-              src="./assets/logos/itsec-horizontal.png"
-              alt="ITSEC"
-              fallback="ITSEC"
-              className="h-6 w-auto object-contain 2xl:h-8"
-            />
-          </motion.div>
-
           <main className="relative z-10 h-full flex-1 overflow-hidden">
             <AnimatePresence mode="wait">
               {screen === 'dashboard' && (
