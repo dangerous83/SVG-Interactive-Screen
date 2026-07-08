@@ -94,6 +94,7 @@ export default function CommandDock({
         className="glass-strong holo-border pointer-events-auto relative z-40 flex items-center gap-1 rounded-[1.75rem] px-3 py-2 shadow-glow-cyan sm:gap-2 sm:px-4"
       >
         <DockButton icon={<Home />} label="Home" onClick={() => { play('icon-select'); onHome() }} />
+        <DockButton icon={<Users />} label="Team" onClick={() => { play('transition-whoosh'); onOpenTeam() }} />
         <DockButton
           icon={<Palette />}
           label={themeLabel}

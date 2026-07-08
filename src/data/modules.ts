@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   ShieldAlert,
   Network,
-  Users,
   Mail,
 } from 'lucide-react'
 
@@ -161,25 +160,6 @@ export const itsecModules: CommandModule[] = [
     icon: Network,
     related: ['amir-sv', 'esmaeil-sv'],
     route: 'ecosystem',
-  },
-  {
-    id: 'team',
-    short: 'Team',
-    org: 'itsec',
-    title: 'Leadership & Team',
-    tag: 'Our People',
-    description:
-      'Meet the SecureVisa and ITSEC leadership and specialists behind the command center.',
-    keyPoints: [
-      'Executive leadership',
-      'Compliance & assurance',
-      'Cybersecurity engineering',
-      'Operations & advisory',
-    ],
-    cta: 'View the Team',
-    icon: Users,
-    related: [],
-    route: 'team',
   },
   {
     id: 'contact',
