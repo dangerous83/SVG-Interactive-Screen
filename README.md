@@ -117,21 +117,19 @@ public/assets/
 │   ├── jessa-pastor.webp
 │   ├── john-montilla.webp
 │   └── manuelito-victoria.webp
-├── video/
-│   └── bg-cyber.webm              ← looping cyber background video (dashboard backdrop)
 └── sounds/                        ← OPTIONAL (see below)
 ```
 
-### Background
-The dashboard plays a **looping cyber background video** — `public/assets/video/bg-cyber.webm`
-(a generated cyber HUD: grid, particles, radar sweep, network nodes, data streams) — over
-the built‑in animated cyber background. Replace it with your own **`bg-cyber.webm`** or add
-a **`bg-cyber.mp4`** (both are tried, webm first). It autoplays **muted + looped**. If the
-file is missing or a browser can't decode it, the animated cyber background shows through.
-Toggle it under **Settings → Display → Background video**.
+### Background (BG Cyber)
+The dashboard backdrop is a **live, looping animated cyber HUD** rendered in code
+(`src/components/CyberScene.tsx`): deep‑navy gradient, scrolling grid, radar sweep + rings,
+glowing cyan/orange network nodes, drifting particles, vertical data streams, and a scan
+sweep. It always displays and loops — **no video file, codec, or autoplay dependency** —
+and stays smooth at 4K. Tune colors/density in `CyberScene.tsx`; toggle it under
+**Settings → Display → Cyber background**.
 
-> The original `UAE flag.mp4` stays in the repo's top‑level `asset/` folder if you want to
-> switch back — copy it to `public/assets/video/bg-cyber.mp4`.
+> The original `UAE flag.mp4` remains in the top‑level `asset/` folder if you ever want a
+> flag video backdrop instead.
 
 ### Logos
 Replace the files in `public/assets/logos/`. If an image is missing, the UI shows a

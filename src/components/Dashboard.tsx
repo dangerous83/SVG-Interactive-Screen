@@ -5,6 +5,7 @@ import HolographicCore from './HolographicCore'
 import OrbitalIcon from './OrbitalIcon'
 import InfoPanel from './InfoPanel'
 import CommandDock, { type ThemeName } from './CommandDock'
+import CyberScene from './CyberScene'
 import { useSound } from '../hooks/useSound'
 
 /*
@@ -19,12 +20,6 @@ import { useSound } from '../hooks/useSound'
     - Right arc: ITSEC module nodes (orange)
   Keyboard: ESC collapses/closes · Arrows move focus around the ring · Enter opens.
 */
-
-// Looping cyber background video. A generated bg-cyber.webm ships in the repo;
-// drop your own /public/assets/video/bg-cyber.(webm|mp4) to replace it. If the
-// file is absent (or can't decode), the animated cyber background shows instead.
-const BG_VIDEO_WEBM = './assets/video/bg-cyber.webm'
-const BG_VIDEO_MP4 = './assets/video/bg-cyber.mp4'
 
 interface DashboardProps {
   onExplore: () => void
@@ -66,8 +61,7 @@ export default function Dashboard({
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [focusIndex, setFocusIndex] = useState<number>(-1)
   const [revealed, setRevealed] = useState(false) // modules hidden until the core is tapped
-  const [bgVideoOn, setBgVideoOn] = useState(true)
-  const [bgVideoOk, setBgVideoOk] = useState(true) // false once the video errors (missing/undecodable)
+  const [bgOn, setBgOn] = useState(true) // animated cyber background on/off
 
   // Pre-compute node placements on the two arcs.
   const placed = useMemo<Placed[]>(() => {
@@ -150,33 +144,16 @@ export default function Dashboard({
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
-      {/* ── Cyber backdrop ────────────────────────────────────────────────
-          Optional bg-cyber.mp4 on top of the animated cyber background (which
-          renders app-wide behind this screen). If the video is missing/undecodable
-          the animated cyber background simply shows through. */}
+      {/* ── Cyber backdrop (live animated loop) ───────────────────────────── */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-        {bgVideoOn && bgVideoOk && (
-          <video
-            className="h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            aria-hidden="true"
-            onError={() => setBgVideoOk(false)}
-          >
-            <source src={BG_VIDEO_WEBM} type="video/webm" />
-            <source src={BG_VIDEO_MP4} type="video/mp4" />
-          </video>
-        )}
-        {/* Light vignette + extra dim when the ring is open (keeps icons crisp) */}
+        {bgOn && <CyberScene />}
+        {/* Slight extra dim when the ring is open (keeps icons crisp) */}
         <motion.div
           className="absolute inset-0"
-          animate={{ backgroundColor: revealed ? 'rgba(3,6,15,0.5)' : 'rgba(3,6,15,0.2)' }}
+          animate={{ backgroundColor: revealed ? 'rgba(3,6,15,0.45)' : 'rgba(3,6,15,0.12)' }}
           transition={{ duration: 0.7 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-void/40 via-transparent to-void/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-void/30 via-transparent to-void/65" />
       </div>
 
       {/* ── Orbital ring region ───────────────────────────────────────────── */}
@@ -270,8 +247,8 @@ export default function Dashboard({
               onSelectModule={selectModule}
               onOpenTeam={onOpenTeam}
               onOpenEcosystem={onExplore}
-              bgVideoOn={bgVideoOn}
-              onToggleBgVideo={() => setBgVideoOn((v) => !v)}
+              bgVideoOn={bgOn}
+              onToggleBgVideo={() => setBgOn((v) => !v)}
               isFullscreen={isFullscreen}
               onToggleFullscreen={onToggleFullscreen}
             />
