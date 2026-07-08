@@ -1,10 +1,10 @@
-import { motion } from 'framer-motion'
 import { ShieldCheck } from 'lucide-react'
 
 /*
-  Central holographic network core — a rotating globe / radar built from layered SVG.
-  Pure SVG + CSS animation keeps it GPU-light for smooth 4K rendering (no Three.js).
-  `active` slightly intensifies the glow when a module panel is open.
+  Central holographic network core — a STATIC globe / HUD built from layered SVG.
+  Deliberately motionless (no spinning rings, no radar sweep, no hover/tap movement)
+  so the CORE reads as a solid, professional button on a touch kiosk.
+  `active` only intensifies the glow when the module ring is open.
 */
 export default function HolographicCore({
   active = false,
@@ -15,29 +15,19 @@ export default function HolographicCore({
 }) {
   return (
     <div className="relative flex items-center justify-center">
-      {/* Outer glow */}
-      <motion.div
-        animate={{ scale: active ? 1.06 : 1, opacity: active ? 0.9 : 0.7 }}
-        transition={{ duration: 0.6 }}
+      {/* Outer glow (static) */}
+      <div
         className="absolute h-[36vh] w-[36vh] rounded-full bg-itsec-blue/20 blur-[90px]"
+        style={{ opacity: active ? 0.9 : 0.7 }}
       />
 
-      {/* Rotating ring stack */}
+      {/* Static ring stack */}
       <div className="relative h-[32vh] w-[32vh] max-h-[420px] max-w-[420px]">
-        {/* Ring 1 */}
-        <div className="absolute inset-0 animate-spin-slow rounded-full border border-sv-cyan/30" />
-        {/* Ring 2 (dashed, reverse) */}
-        <div
-          className="absolute inset-[6%] animate-spin-reverse rounded-full border-2 border-dashed border-itsec-blue/40"
-          style={{ animationDuration: '50s' }}
-        />
-        {/* Ring 3 */}
-        <div
-          className="absolute inset-[14%] animate-spin-slow rounded-full border border-sv-orange/30"
-          style={{ animationDuration: '30s' }}
-        />
+        <div className="absolute inset-0 rounded-full border border-sv-cyan/25" />
+        <div className="absolute inset-[6%] rounded-full border-2 border-dashed border-itsec-blue/30" />
+        <div className="absolute inset-[14%] rounded-full border border-sv-orange/25" />
 
-        {/* SVG globe + radar */}
+        {/* SVG globe (static) */}
         <svg viewBox="0 0 400 400" className="absolute inset-[10%]">
           <defs>
             <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
@@ -45,40 +35,22 @@ export default function HolographicCore({
               <stop offset="70%" stopColor="#0075c9" stopOpacity="0.08" />
               <stop offset="100%" stopColor="#0075c9" stopOpacity="0" />
             </radialGradient>
-            <linearGradient id="radarSweep" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#33d6ff" stopOpacity="0" />
-              <stop offset="100%" stopColor="#33d6ff" stopOpacity="0.55" />
-            </linearGradient>
           </defs>
 
           <circle cx="200" cy="200" r="160" fill="url(#coreGlow)" />
 
           {/* Longitude / latitude lines (globe feel) */}
-          <g stroke="#33d6ff" strokeOpacity="0.35" fill="none" strokeWidth="1">
-            <circle cx="200" cy="200" r="150" strokeOpacity="0.25" />
+          <g stroke="#33d6ff" strokeOpacity="0.32" fill="none" strokeWidth="1">
+            <circle cx="200" cy="200" r="150" strokeOpacity="0.22" />
             <ellipse cx="200" cy="200" rx="150" ry="55" />
             <ellipse cx="200" cy="200" rx="150" ry="110" />
             <ellipse cx="200" cy="200" rx="55" ry="150" />
             <ellipse cx="200" cy="200" rx="110" ry="150" />
-            <line x1="50" y1="200" x2="350" y2="200" strokeOpacity="0.2" />
-            <line x1="200" y1="50" x2="200" y2="350" strokeOpacity="0.2" />
+            <line x1="50" y1="200" x2="350" y2="200" strokeOpacity="0.18" />
+            <line x1="200" y1="50" x2="200" y2="350" strokeOpacity="0.18" />
           </g>
 
-          {/* Radar sweep */}
-          <g>
-            <path d="M200 200 L200 50 A150 150 0 0 1 305 95 Z" fill="url(#radarSweep)">
-              <animateTransform
-                attributeName="transform"
-                type="rotate"
-                from="0 200 200"
-                to="360 200 200"
-                dur="6s"
-                repeatCount="indefinite"
-              />
-            </path>
-          </g>
-
-          {/* Crypto / network nodes */}
+          {/* Static network nodes */}
           {[
             [200, 60],
             [330, 150],
@@ -88,44 +60,29 @@ export default function HolographicCore({
             [110, 90],
           ].map(([cx, cy], i) => (
             <g key={i}>
-              <line
-                x1="200"
-                y1="200"
-                x2={cx}
-                y2={cy}
-                stroke="#0075c9"
-                strokeOpacity="0.3"
-                strokeWidth="1"
-              />
-              <circle cx={cx} cy={cy} r="5" fill="#33d6ff">
-                <animate
-                  attributeName="opacity"
-                  values="0.3;1;0.3"
-                  dur={`${2 + i * 0.4}s`}
-                  repeatCount="indefinite"
-                />
-              </circle>
+              <line x1="200" y1="200" x2={cx} y2={cy} stroke="#0075c9" strokeOpacity="0.28" strokeWidth="1" />
+              <circle cx={cx} cy={cy} r="4" fill="#33d6ff" fillOpacity="0.7" />
             </g>
           ))}
         </svg>
 
         {/* Core shield hub — tap to open/close the module ring.
-            No hover transform (kiosk UX): hover only intensifies the glow. */}
-        <motion.button
+            No transform on hover/tap (kiosk UX): hover only intensifies the glow. */}
+        <button
           onClick={onActivate}
-          whileTap={{ scale: 0.97 }}
           className="group absolute left-1/2 top-1/2 flex h-[34%] w-[34%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full"
           aria-label="Toggle command modules"
         >
-          <div className="glass-strong relative flex h-full w-full flex-col items-center justify-center rounded-full shadow-glow-cyan transition-shadow duration-300 group-hover:shadow-[0_0_60px_rgba(51,214,255,0.65)]">
-            {/* Static hover halo (opacity only — never moves the button) */}
-            <span className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 [box-shadow:inset_0_0_28px_rgba(51,214,255,0.45)]" />
+          <div
+            className="glass-strong relative flex h-full w-full flex-col items-center justify-center rounded-full transition-shadow duration-300 group-hover:shadow-[0_0_60px_rgba(51,214,255,0.7)]"
+            style={{ boxShadow: active ? '0 0 55px rgba(51,214,255,0.6)' : '0 0 34px rgba(51,214,255,0.4)' }}
+          >
             <ShieldCheck className="h-1/3 w-1/3 text-sv-cyan" strokeWidth={1.4} />
             <span className="mt-1 font-display text-[0.7rem] font-bold tracking-[0.25em] text-white/80 2xl:text-sm">
               CORE
             </span>
           </div>
-        </motion.button>
+        </button>
       </div>
     </div>
   )
