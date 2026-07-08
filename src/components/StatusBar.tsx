@@ -111,7 +111,7 @@ export default function StatusBar({ isFullscreen, onToggleFullscreen }: StatusBa
         <motion.button
           onClick={onToggleFullscreen}
           whileTap={{ scale: 0.92 }}
-          aria-label={isFullscreen ? 'Exit presentation mode' : 'Enter fullscreen'}
+          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
           className="touch-target holo-border glass flex items-center justify-center rounded-2xl px-5"
         >
           {isFullscreen ? (

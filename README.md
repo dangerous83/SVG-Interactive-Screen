@@ -80,11 +80,14 @@ Tips for a permanent 4K touch kiosk:
 | Collapse the ring | **Esc** (when no panel is open) |
 | Move focus around the ring | **Arrow keys** (← / ↑ previous node, → / ↓ next node) |
 | Open the focused node | **Enter** |
-| Explore Ecosystem | Bottom button |
-| Team Command grid | **Command Team** button (bottom controls) — opens its own page |
-| Presentation Mode | Center button — auto‑plays every module (~6 s each) with prev / pause / next / exit; **Space** pauses, **← / →** step, **Esc** exits |
+| Command dock (appears with the ring) | **Home** (collapse to clean start) · **Theme** (cycle backdrop mood) · **Settings** · **Volume** · **Keyboards** (shortcuts) · **Search** |
+| Search modules | **Search** in the dock — command‑palette style; tap a result to open its brief |
+| Ecosystem Map / Team Command | **Settings → Views** in the dock |
 | Fullscreen / kiosk | ⤢ button (top‑right) |
-| Sound | **SOUND OFF/ON** toggle (top‑right) — audio is **muted by default** |
+| Sound | **Volume** in the dock, or the top‑right toggle — audio is **on by default** (high‑tech effects); mute anytime |
+
+> This screen is an **information display** for SecureVisa × ITSEC driven by touch —
+> there is no auto‑playing "presentation" mode.
 
 ---
 

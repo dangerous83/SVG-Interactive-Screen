@@ -109,15 +109,17 @@ export default function HolographicCore({
           ))}
         </svg>
 
-        {/* Core shield hub (tappable = Explore Ecosystem shortcut) */}
+        {/* Core shield hub — tap to open/close the module ring.
+            No hover transform (kiosk UX): hover only intensifies the glow. */}
         <motion.button
           onClick={onActivate}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="absolute left-1/2 top-1/2 flex h-[34%] w-[34%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full"
+          whileTap={{ scale: 0.97 }}
+          className="group absolute left-1/2 top-1/2 flex h-[34%] w-[34%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full"
           aria-label="Toggle command modules"
         >
-          <div className="glass-strong flex h-full w-full flex-col items-center justify-center rounded-full shadow-glow-cyan">
+          <div className="glass-strong relative flex h-full w-full flex-col items-center justify-center rounded-full shadow-glow-cyan transition-shadow duration-300 group-hover:shadow-[0_0_60px_rgba(51,214,255,0.65)]">
+            {/* Static hover halo (opacity only — never moves the button) */}
+            <span className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 [box-shadow:inset_0_0_28px_rgba(51,214,255,0.45)]" />
             <ShieldCheck className="h-1/3 w-1/3 text-sv-cyan" strokeWidth={1.4} />
             <span className="mt-1 font-display text-[0.7rem] font-bold tracking-[0.25em] text-white/80 2xl:text-sm">
               CORE

@@ -6,6 +6,7 @@ import StatusBar from './components/StatusBar'
 import Dashboard from './components/Dashboard'
 import EcosystemMap from './components/EcosystemMap'
 import TeamCommand from './components/TeamCommand'
+import { THEMES } from './components/CommandDock'
 import { useSound } from './hooks/useSound'
 
 type Screen = 'boot' | 'dashboard' | 'ecosystem' | 'team'
@@ -14,6 +15,18 @@ export default function App() {
   const { play, unlock } = useSound()
   const [screen, setScreen] = useState<Screen>('boot')
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [themeIndex, setThemeIndex] = useState(0)
+  const theme = THEMES[themeIndex].id
+
+  // Apply the selected theme (backdrop mood) to the document root.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
+
+  const cycleTheme = useCallback(() => {
+    play('icon-select')
+    setThemeIndex((i) => (i + 1) % THEMES.length)
+  }, [play])
 
   // Unlock the Web Audio context on the first user gesture (browser requirement).
   useEffect(() => {
@@ -85,6 +98,8 @@ export default function App() {
                   <Dashboard
                     onExplore={() => goto('ecosystem')}
                     onOpenTeam={() => goto('team')}
+                    theme={theme}
+                    onCycleTheme={cycleTheme}
                   />
                 </motion.div>
               )}
