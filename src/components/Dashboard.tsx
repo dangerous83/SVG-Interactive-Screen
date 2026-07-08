@@ -20,10 +20,11 @@ import { useSound } from '../hooks/useSound'
   Keyboard: ESC collapses/closes · Arrows move focus around the ring · Enter opens.
 */
 
-// Optional cyber background video — drop /public/assets/video/bg-cyber.mp4 to use
-// it. If the file is absent (or can't decode), the animated cyber background
-// (grid / particles / radar) shows instead.
-const BG_VIDEO = './assets/video/bg-cyber.mp4'
+// Looping cyber background video. A generated bg-cyber.webm ships in the repo;
+// drop your own /public/assets/video/bg-cyber.(webm|mp4) to replace it. If the
+// file is absent (or can't decode), the animated cyber background shows instead.
+const BG_VIDEO_WEBM = './assets/video/bg-cyber.webm'
+const BG_VIDEO_MP4 = './assets/video/bg-cyber.mp4'
 
 interface DashboardProps {
   onExplore: () => void
@@ -157,7 +158,6 @@ export default function Dashboard({
         {bgVideoOn && bgVideoOk && (
           <video
             className="h-full w-full object-cover"
-            src={BG_VIDEO}
             autoPlay
             muted
             loop
@@ -165,7 +165,10 @@ export default function Dashboard({
             preload="auto"
             aria-hidden="true"
             onError={() => setBgVideoOk(false)}
-          />
+          >
+            <source src={BG_VIDEO_WEBM} type="video/webm" />
+            <source src={BG_VIDEO_MP4} type="video/mp4" />
+          </video>
         )}
         {/* Light vignette + extra dim when the ring is open (keeps icons crisp) */}
         <motion.div
