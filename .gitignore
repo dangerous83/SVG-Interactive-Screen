@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-ssr
+*.local
+.vite
+.DS_Store
+*.log
+npm-debug.log*
+
+# TypeScript / build info emitted by `tsc -b`
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

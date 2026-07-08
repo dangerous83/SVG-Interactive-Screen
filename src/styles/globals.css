@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  SecureVisa x ITSEC Command Center — global styles
+  Optimized for 4K (3840x2160) with graceful scale-down to 1080p.
+  Root font-size scales with viewport so the whole UI reads from 2-4 meters away.
+*/
+
+:root {
+  /* Fluid base size: ~16px at 1080p, ~20px+ on 4K */
+  font-size: clamp(15px, 0.83vw, 26px);
+  color-scheme: dark;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: radial-gradient(1400px 900px at 50% -10%, #0a1430 0%, #060b1c 45%, #03060f 100%);
+  color: #e6f0ff;
+  font-family: 'Rajdhani', 'Inter', system-ui, sans-serif;
+  overflow: hidden;
+  /* Disable text selection for a kiosk feel; re-enable inside long-form panels if needed */
+  user-select: none;
+  cursor: default;
+}
+
+/* Custom scrollbar for any scrollable panel */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 117, 201, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 214, 255, 0.35);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(51, 214, 255, 0.55);
+}
+
+@layer components {
+  /* Glassmorphism surface */
+  .glass {
+    background: linear-gradient(
+      135deg,
+      rgba(12, 24, 54, 0.72) 0%,
+      rgba(6, 11, 28, 0.6) 100%
+    );
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(51, 214, 255, 0.18);
+  }
+
+  .glass-strong {
+    background: linear-gradient(
+      135deg,
+      rgba(12, 24, 54, 0.9) 0%,
+      rgba(6, 11, 28, 0.82) 100%
+    );
+    backdrop-filter: blur(26px) saturate(150%);
+    -webkit-backdrop-filter: blur(26px) saturate(150%);
+    border: 1px solid rgba(51, 214, 255, 0.22);
+  }
+
+  /* Holographic animated border */
+  .holo-border {
+    position: relative;
+  }
+  .holo-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      130deg,
+      rgba(51, 214, 255, 0.9),
+      rgba(0, 117, 201, 0.2) 30%,
+      rgba(210, 69, 30, 0.7) 70%,
+      rgba(255, 122, 48, 0.9)
+    );
+    background-size: 300% 300%;
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: holo-shift 6s ease infinite;
+    pointer-events: none;
+  }
+
+  @keyframes holo-shift {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Minimum touch target helper */
+  .touch-target {
+    min-width: 72px;
+    min-height: 72px;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 18px rgba(51, 214, 255, 0.55);
+  }
+  .text-glow-orange {
+    text-shadow: 0 0 18px rgba(255, 122, 48, 0.55);
+  }
+}
+
+/* Cyber grid overlay used on the dashboard background */
+.cyber-grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 117, 201, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 117, 201, 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, #000 40%, transparent 100%);
+}
+
+/* Animated scan line sweeping the whole screen */
+.scanline {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(51, 214, 255, 0.06) 50%,
+    transparent
+  );
+  height: 30%;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
