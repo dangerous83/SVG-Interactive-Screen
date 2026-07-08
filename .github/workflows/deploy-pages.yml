@@ -8,6 +8,15 @@ on:
     branches:
       - main
   workflow_dispatch:
+  # Self-heal: if the repo's Pages "Source" is still "Deploy from a branch",
+  # GitHub also runs its managed "pages build and deployment" (Jekyll) job on
+  # every push, which publishes the RAW, uncompiled source and can win the race,
+  # leaving the site blank. Re-run this build right after that job finishes so the
+  # COMPILED app is always the last deployment. (The permanent fix is still to set
+  # Settings → Pages → Source → "GitHub Actions", which stops the Jekyll job.)
+  workflow_run:
+    workflows: ["pages-build-deployment", "pages build and deployment"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -24,6 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-node@v4
         with:
