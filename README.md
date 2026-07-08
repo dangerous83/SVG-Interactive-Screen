@@ -122,8 +122,8 @@ public/assets/
 
 ### Background
 The dashboard backdrop is a **looping background video** —
-`public/assets/video/uae-flag.mp4` (muted + looped). Replace that file (same name) to change
-it; use a web‑friendly **H.264/AAC MP4**. Toggle it under **Settings → Display → Background
+`public/assets/video/background-interactive.mp4` (muted + looped). Replace that file (same
+name) to change it; use a web‑friendly **H.264/AAC MP4**. Toggle it under **Settings → Display → Background
 video**. If a browser can't decode the video, a **live animated cyber scene**
 (`src/components/CyberScene.tsx`: radar sweep, network nodes, particles, data streams)
 renders instead so the backdrop is never blank.

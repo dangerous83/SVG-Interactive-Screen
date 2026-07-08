@@ -21,9 +21,10 @@ import { useSound } from '../hooks/useSound'
   Keyboard: ESC collapses/closes · Arrows move focus around the ring · Enter opens.
 */
 
-// Background video (the uploaded clip). Replace /public/assets/video/uae-flag.mp4
-// to change it. If a browser can't decode it, the animated cyber scene shows.
-const BG_VIDEO = './assets/video/uae-flag.mp4'
+// Background video (the uploaded clip). Replace
+// /public/assets/video/background-interactive.mp4 to change it. If a browser
+// can't decode it, the animated cyber scene shows instead.
+const BG_VIDEO = './assets/video/background-interactive.mp4'
 
 interface DashboardProps {
   onExplore: () => void
