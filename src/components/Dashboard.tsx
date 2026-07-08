@@ -17,17 +17,23 @@ import InfoPanel from './InfoPanel'
 import { useSound } from '../hooks/useSound'
 
 /*
-  Dashboard — the home command view, built as an ORBITAL DASHBOARD:
-  - Center:      holographic core
-  - Left arc:    SecureVisa module icon-nodes (cyan)
-  - Right arc:   ITSEC module icon-nodes (orange)
-  - Bottom:      compact control cluster (Explore · Presentation · Command Team)
+  Dashboard — the home command view, built as an ORBITAL DASHBOARD.
+
+  Clean start: only the holographic core is shown over the UAE flag backdrop.
+  Tapping the CORE reveals the module icon-nodes, each linked to the core by an
+  animated data line + node:
+    - Left arc:  SecureVisa module nodes (cyan)
+    - Right arc: ITSEC module nodes (orange)
   Tapping a node opens its command brief as a cinematic centered overlay; the team
-  lives on its own screen behind a single button (no crowded carousel here).
-  Keyboard: ESC closes · Arrow keys move focus around the ring · Enter opens.
+  lives on its own screen behind a single button.
+  Keyboard: ESC collapses/closes · Arrows move focus around the ring · Enter opens.
 */
 
 const PRESENTATION_MS = 6000 // 6s per section (spec: 5-8s)
+
+// Background video (UAE flag) — placed in /public/assets/video/uae-flag.mp4.
+// Replace that file (same name) to change the backdrop.
+const BG_VIDEO = './assets/video/uae-flag.mp4'
 
 interface DashboardProps {
   onExplore: () => void
@@ -41,7 +47,6 @@ function arcAngles(count: number, from: number, to: number): number[] {
   return Array.from({ length: count }, (_, i) => from + step * i)
 }
 
-// Left arc sweeps the left half; right arc sweeps the right half.
 // The ITSEC arc has 7 nodes vs SecureVisa's 6, so it uses a wider angular sweep
 // to keep the spacing (node density) visually consistent between the two sides.
 const RX = 38 // horizontal radius (% of ring area)
@@ -58,6 +63,7 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
   const { play } = useSound()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [focusIndex, setFocusIndex] = useState<number>(-1)
+  const [revealed, setRevealed] = useState(false) // modules hidden until the core is tapped
 
   // Presentation mode
   const [presenting, setPresenting] = useState(false)
@@ -93,10 +99,24 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
   const selectModule = useCallback((id: string) => setSelectedId(id), [])
   const closePanel = useCallback(() => setSelectedId(null), [])
 
+  // Tapping the core toggles the module ring open/closed.
+  const toggleReveal = useCallback(() => {
+    setRevealed((r) => {
+      const next = !r
+      play(next ? 'panel-open' : 'panel-close')
+      if (!next) {
+        setSelectedId(null)
+        setFocusIndex(-1)
+      }
+      return next
+    })
+  }, [play])
+
   // ── Presentation controls ────────────────────────────────────────────────
   const startPresentation = useCallback(() => {
     play('transition-whoosh')
     presIndexRef.current = 0
+    setRevealed(true)
     setPresenting(true)
     setPresPaused(false)
     setSelectedId(allModules[0].id)
@@ -133,6 +153,8 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
         else if (selectedId) {
           play('panel-close')
           closePanel()
+        } else if (revealed) {
+          toggleReveal()
         }
         return
       }
@@ -142,6 +164,14 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
         if (e.key === ' ') {
           e.preventDefault()
           setPresPaused((p) => !p)
+        }
+        return
+      }
+      // Before the ring is open, Enter / arrows open it.
+      if (!revealed) {
+        if (e.key === 'Enter' || e.key.startsWith('Arrow')) {
+          toggleReveal()
+          setFocusIndex(0)
         }
         return
       }
@@ -160,7 +190,7 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presenting, selectedId, focusIndex])
+  }, [presenting, selectedId, focusIndex, revealed])
 
   const selectedModule = allModules.find((m) => m.id === selectedId) ?? null
   const selectedPlaced = placed.find((p) => p.module.id === selectedId) ?? null
@@ -168,15 +198,55 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
+      {/* ── UAE flag video backdrop ───────────────────────────────────────── */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <video
+          className="h-full w-full object-cover"
+          src={BG_VIDEO}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          // Dark fallback so a browser without H.264 shows navy, not black.
+          style={{ backgroundColor: '#03060f' }}
+        />
+        {/* Legibility overlay — flag reads prominently on the clean start,
+            then dims once the module ring is open so nodes/panel stay readable. */}
+        <motion.div
+          className="absolute inset-0"
+          animate={{ backgroundColor: revealed ? 'rgba(3,6,15,0.82)' : 'rgba(3,6,15,0.42)' }}
+          transition={{ duration: 0.7 }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-void/60 via-transparent to-void/75" />
+      </div>
+
       {/* ── Orbital ring region ───────────────────────────────────────────── */}
-      <div className="relative flex-1">
-        {/* Faint org labels to orient the two arcs */}
-        <span className="pointer-events-none absolute left-8 top-6 font-display text-base font-bold uppercase tracking-[0.35em] text-sv-cyan/70 2xl:text-lg">
-          SecureVisa
-        </span>
-        <span className="pointer-events-none absolute right-8 top-6 font-display text-base font-bold uppercase tracking-[0.35em] text-sv-orange/70 2xl:text-lg">
-          ITSEC
-        </span>
+      <div className="relative z-10 flex-1">
+        {/* Org labels appear with the ring */}
+        <AnimatePresence>
+          {revealed && (
+            <>
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="pointer-events-none absolute left-8 top-6 font-display text-base font-bold uppercase tracking-[0.35em] text-sv-cyan/70 2xl:text-lg"
+              >
+                SecureVisa
+              </motion.span>
+              <motion.span
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="pointer-events-none absolute right-8 top-6 font-display text-base font-bold uppercase tracking-[0.35em] text-sv-orange/70 2xl:text-lg"
+              >
+                ITSEC
+              </motion.span>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Decorative orbit rings behind the nodes */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -189,28 +259,60 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
           />
         </div>
 
+        {/* Connector lines from the core to each node (only when revealed) */}
+        <AnimatePresence>
+          {revealed && <ConnectorWeb placed={placed} activeId={selectedId} focusIndex={focusIndex} />}
+        </AnimatePresence>
+
         {/* Central core */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <HolographicCore active={Boolean(selectedModule)} onActivate={onExplore} />
+          <HolographicCore active={revealed || Boolean(selectedModule)} onActivate={toggleReveal} />
         </div>
 
+        {/* "Tap core" hint before the ring opens */}
+        <AnimatePresence>
+          {!revealed && (
+            <motion.div
+              key="hint"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              className="pointer-events-none absolute inset-x-0 bottom-[14%] flex flex-col items-center gap-2 text-center"
+            >
+              <motion.span
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                className="font-display text-xl font-bold uppercase tracking-[0.3em] text-sv-cyan 2xl:text-2xl"
+              >
+                Tap the Core to open modules
+              </motion.span>
+              <span className="font-mono text-sm uppercase tracking-[0.25em] text-white/40">
+                SecureVisa × ITSEC · Regulatory Cyber Command Center
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Module nodes on the ring */}
-        {placed.map((p) => (
-          <OrbitalIcon
-            key={p.module.id}
-            module={p.module}
-            index={p.index}
-            selected={selectedId === p.module.id}
-            focused={!presenting && focusIndex === p.index}
-            dimmed={Boolean(selectedModule) && selectedId !== p.module.id}
-            onSelect={selectModule}
-            style={{ left: `${p.left}%`, top: `${p.top}%` }}
-          />
-        ))}
+        <AnimatePresence>
+          {revealed &&
+            placed.map((p) => (
+              <OrbitalIcon
+                key={p.module.id}
+                module={p.module}
+                index={p.index}
+                selected={selectedId === p.module.id}
+                focused={!presenting && focusIndex === p.index}
+                dimmed={Boolean(selectedModule) && selectedId !== p.module.id}
+                onSelect={selectModule}
+                style={{ left: `${p.left}%`, top: `${p.top}%` }}
+              />
+            ))}
+        </AnimatePresence>
       </div>
 
       {/* ── Bottom control cluster ────────────────────────────────────────── */}
-      <div className="relative z-10 flex items-center justify-center gap-5 pb-6 pt-2">
+      <div className="relative z-20 flex items-center justify-center gap-5 pb-6 pt-2">
         <ActionButton
           icon={<Compass className="h-7 w-7" />}
           label="Explore Ecosystem"
@@ -252,7 +354,6 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
               }
             }}
           >
-            {/* Data line from core → selected node */}
             {selectedPlaced && (
               <ConnectorLine
                 left={selectedPlaced.left}
@@ -350,7 +451,64 @@ function CtrlButton({
   )
 }
 
-/** Animated data line from the core (screen center) to the selected node. */
+/**
+ * Data lines fanning out from the core to every node, each with a pulsing node
+ * dot at its midpoint. The line to the active/focused node brightens.
+ */
+function ConnectorWeb({
+  placed,
+  activeId,
+  focusIndex,
+}: {
+  placed: Placed[]
+  activeId: string | null
+  focusIndex: number
+}) {
+  return (
+    <motion.svg
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+      className="pointer-events-none absolute inset-0 z-[5] h-full w-full"
+      preserveAspectRatio="none"
+    >
+      {placed.map((p, i) => {
+        const acc = p.module.org === 'securevisa' ? '#33d6ff' : '#ff7a30'
+        const hot = activeId === p.module.id || focusIndex === i
+        const mx = (50 + p.left) / 2
+        const my = (50 + p.top) / 2
+        return (
+          <g key={p.module.id}>
+            <motion.line
+              x1="50%"
+              y1="50%"
+              x2={`${p.left}%`}
+              y2={`${p.top}%`}
+              stroke={acc}
+              strokeWidth={hot ? 2 : 1}
+              strokeDasharray="3 7"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: hot ? 0.75 : 0.28 }}
+              transition={{ duration: 0.6, delay: 0.04 * i }}
+            />
+            <motion.circle
+              cx={`${mx}%`}
+              cy={`${my}%`}
+              r={hot ? 4 : 2.5}
+              fill={acc}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0.3, hot ? 1 : 0.7, 0.3] }}
+              transition={{ duration: 2 + i * 0.2, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </g>
+        )
+      })}
+    </motion.svg>
+  )
+}
+
+/** Bright animated data line from the core to the selected node (under the panel). */
 function ConnectorLine({
   left,
   top,

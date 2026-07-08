@@ -115,7 +115,7 @@ export default function HolographicCore({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="absolute left-1/2 top-1/2 flex h-[34%] w-[34%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full"
-          aria-label="Explore Ecosystem"
+          aria-label="Toggle command modules"
         >
           <div className="glass-strong flex h-full w-full flex-col items-center justify-center rounded-full shadow-glow-cyan">
             <ShieldCheck className="h-1/3 w-1/3 text-sv-cyan" strokeWidth={1.4} />
