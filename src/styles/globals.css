@@ -127,6 +127,44 @@ body {
   }
 }
 
+/* Theme presets — swap the backdrop mood (set via data-theme on <html>) */
+:root[data-theme='abyss'] body {
+  background: radial-gradient(1400px 900px at 50% -10%, #0a0f1c 0%, #05070f 45%, #010208 100%);
+}
+:root[data-theme='azure'] body {
+  background: radial-gradient(1400px 900px at 50% -10%, #0b2a5e 0%, #071a3c 45%, #030a1c 100%);
+}
+
+/* Dock volume slider */
+.dock-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(51, 214, 255, 0.6), rgba(0, 117, 201, 0.35));
+  outline: none;
+}
+.dock-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+  background: #33d6ff;
+  border: 2px solid #03060f;
+  box-shadow: 0 0 12px rgba(51, 214, 255, 0.8);
+  cursor: pointer;
+}
+.dock-slider::-moz-range-thumb {
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+  background: #33d6ff;
+  border: 2px solid #03060f;
+  box-shadow: 0 0 12px rgba(51, 214, 255, 0.8);
+  cursor: pointer;
+}
+
 /* Cyber grid overlay used on the dashboard background */
 .cyber-grid-bg {
   background-image:

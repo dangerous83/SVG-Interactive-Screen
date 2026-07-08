@@ -33,6 +33,7 @@ export type SoundName =
   | 'success-confirm'
   | 'error-alert'
   | 'ambient-loop'
+  | 'reveal'
 
 // Optional real files. Missing files silently fall back to synthesis.
 const FILE_SOURCES: Record<SoundName, string> = {
@@ -45,6 +46,7 @@ const FILE_SOURCES: Record<SoundName, string> = {
   'success-confirm': './assets/sounds/success-confirm.mp3',
   'error-alert': './assets/sounds/error-alert.mp3',
   'ambient-loop': './assets/sounds/ambient-loop.mp3',
+  reveal: './assets/sounds/reveal.mp3',
 }
 
 interface SynthSpec {
@@ -65,6 +67,8 @@ const SYNTH: Record<SoundName, SynthSpec> = {
   'success-confirm': { type: 'triangle', notes: [523.25, 659.25, 783.99], duration: 0.4, gain: 0.14 },
   'error-alert': { type: 'square', notes: [220, 180], duration: 0.3, gain: 0.1 },
   'ambient-loop': { type: 'sine', notes: [110], duration: 4, gain: 0.02 },
+  // Strong high-tech "systems online" sweep for the module reveal.
+  reveal: { type: 'sawtooth', notes: [90, 220, 440, 880], duration: 0.75, gain: 0.2, sweepTo: 1600 },
 }
 
 class SoundEngine {
@@ -73,7 +77,8 @@ class SoundEngine {
   private buffers = new Map<SoundName, AudioBuffer | null>()
   private ambientNode: AudioBufferSourceNode | OscillatorNode | null = null
   private ambientGain: GainNode | null = null
-  muted = true
+  private volume = 0.9
+  muted = false
 
   private ensureCtx() {
     if (typeof window === 'undefined') return null
@@ -82,7 +87,7 @@ class SoundEngine {
       if (!AC) return null
       this.ctx = new AC()
       this.master = this.ctx.createGain()
-      this.master.gain.value = 0.9
+      this.master.gain.value = this.volume
       this.master.connect(this.ctx.destination)
     }
     if (this.ctx.state === 'suspended') void this.ctx.resume()
@@ -203,6 +208,11 @@ class SoundEngine {
     this.muted = m
     if (m) this.stopAmbient()
   }
+
+  setVolume(v: number) {
+    this.volume = Math.max(0, Math.min(1, v))
+    if (this.master) this.master.gain.value = this.volume
+  }
 }
 
 const engine = new SoundEngine()
@@ -210,6 +220,8 @@ const engine = new SoundEngine()
 interface SoundContextValue {
   muted: boolean
   toggleMute: () => void
+  volume: number
+  setVolume: (v: number) => void
   play: (name: SoundName) => void
   unlock: () => void
 }
@@ -217,7 +229,10 @@ interface SoundContextValue {
 const SoundContext = createContext<SoundContextValue | null>(null)
 
 export function SoundProvider({ children }: { children: ReactNode }) {
-  const [muted, setMuted] = useState(true)
+  // Sound is ON by default so the high-tech effects are heard; operators can
+  // mute from the dock's Volume control or the status-bar toggle.
+  const [muted, setMuted] = useState(false)
+  const [volume, setVolumeState] = useState(0.9)
   const ambientOn = useRef(false)
 
   const toggleMute = useCallback(() => {
@@ -245,13 +260,18 @@ export function SoundProvider({ children }: { children: ReactNode }) {
     engine.unlock()
   }, [])
 
+  const setVolume = useCallback((v: number) => {
+    engine.setVolume(v)
+    setVolumeState(v)
+  }, [])
+
   useEffect(() => {
     engine.setMuted(muted)
   }, [muted])
 
   const value = useMemo(
-    () => ({ muted, toggleMute, play, unlock }),
-    [muted, toggleMute, play, unlock],
+    () => ({ muted, toggleMute, volume, setVolume, play, unlock }),
+    [muted, toggleMute, volume, setVolume, play, unlock],
   )
 
   return createElement(SoundContext.Provider, { value }, children)
