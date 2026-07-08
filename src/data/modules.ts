@@ -24,6 +24,8 @@ export interface CommandModule {
   id: string
   org: ModuleOrg
   title: string
+  /** Short caption shown under the orbital icon node (kept to ~1-2 words). */
+  short: string
   tag: string
   description: string
   keyPoints: string[]
@@ -35,6 +37,7 @@ export interface CommandModule {
 export const securevisaModules: CommandModule[] = [
   {
     id: 'uae-licensing',
+    short: 'UAE Licensing',
     org: 'securevisa',
     title: 'UAE Licensing',
     tag: 'Regulatory Gateway',
@@ -54,6 +57,7 @@ export const securevisaModules: CommandModule[] = [
   },
   {
     id: 'crypto-web3',
+    short: 'Crypto & Web3',
     org: 'securevisa',
     title: 'Crypto & Web3 Compliance',
     tag: 'Virtual Asset Assurance',
@@ -73,6 +77,7 @@ export const securevisaModules: CommandModule[] = [
   },
   {
     id: 'tokenization-rwa',
+    short: 'Tokenization',
     org: 'securevisa',
     title: 'Tokenization & RWA',
     tag: 'Real-World Assets',
@@ -91,6 +96,7 @@ export const securevisaModules: CommandModule[] = [
   },
   {
     id: 'corporate-structuring',
+    short: 'Structuring',
     org: 'securevisa',
     title: 'Corporate Structuring',
     tag: 'Foundation & Setup',
@@ -109,6 +115,7 @@ export const securevisaModules: CommandModule[] = [
   },
   {
     id: 'ongoing-compliance',
+    short: 'Ongoing Compliance',
     org: 'securevisa',
     title: 'Ongoing Compliance',
     tag: 'Continuous Assurance',
@@ -128,6 +135,7 @@ export const securevisaModules: CommandModule[] = [
   },
   {
     id: 'ecosystem-advantage',
+    short: 'Ecosystem',
     org: 'securevisa',
     title: 'Ecosystem Advantage',
     tag: 'One Command Center',
@@ -150,6 +158,7 @@ export const securevisaModules: CommandModule[] = [
 export const itsecModules: CommandModule[] = [
   {
     id: 'vapt',
+    short: 'VAPT',
     org: 'itsec',
     title: 'VAPT & Security Assessment',
     tag: 'Offensive Security',
@@ -169,6 +178,7 @@ export const itsecModules: CommandModule[] = [
   },
   {
     id: 'smart-contract-audit',
+    short: 'Contract Audit',
     org: 'itsec',
     title: 'Smart Contract Audit',
     tag: 'Web3 Security',
@@ -187,6 +197,7 @@ export const itsecModules: CommandModule[] = [
   },
   {
     id: 'exchange-security',
+    short: 'Exchange Security',
     org: 'itsec',
     title: 'Crypto Exchange Security',
     tag: 'Platform Defense',
@@ -206,6 +217,7 @@ export const itsecModules: CommandModule[] = [
   },
   {
     id: 'regulatory-cyber',
+    short: 'Reg. Cybersecurity',
     org: 'itsec',
     title: 'Compliance & Regulatory Cybersecurity',
     tag: 'Control Validation',
@@ -225,6 +237,7 @@ export const itsecModules: CommandModule[] = [
   },
   {
     id: 'vciso',
+    short: 'vCISO',
     org: 'itsec',
     title: 'vCISO & Advisory',
     tag: 'Security Leadership',
@@ -244,6 +257,7 @@ export const itsecModules: CommandModule[] = [
   },
   {
     id: 'ai-security',
+    short: 'AI Security',
     org: 'itsec',
     title: 'AI Security Testing',
     tag: 'Emerging Threats',
@@ -262,6 +276,7 @@ export const itsecModules: CommandModule[] = [
   },
   {
     id: 'incident-response',
+    short: 'Incident Response',
     org: 'itsec',
     title: 'Incident Response',
     tag: 'Rapid Containment',

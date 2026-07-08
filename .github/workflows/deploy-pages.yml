@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - claude/securevisa-itsec-command-center-h077mo
   workflow_dispatch:
 
 permissions:

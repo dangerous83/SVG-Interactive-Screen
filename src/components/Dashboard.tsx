@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   ChevronLeft,
@@ -7,23 +7,24 @@ import {
   Pause,
   Play,
   PlayCircle,
+  Users,
   X,
 } from 'lucide-react'
 import { securevisaModules, itsecModules, allModules } from '../data/modules'
 import HolographicCore from './HolographicCore'
 import OrbitalIcon from './OrbitalIcon'
 import InfoPanel from './InfoPanel'
-import TeamCarousel from './TeamCarousel'
 import { useSound } from '../hooks/useSound'
 
 /*
-  Dashboard — the home command view.
-  - Left rail:  SecureVisa modules
-  - Right rail: ITSEC modules
-  - Center:     holographic core + primary actions
-  - Bottom:     team carousel
-  Keyboard: ESC closes panel / exits presentation · Arrow keys move focus ·
-  Enter selects the focused module.
+  Dashboard — the home command view, built as an ORBITAL DASHBOARD:
+  - Center:      holographic core
+  - Left arc:    SecureVisa module icon-nodes (cyan)
+  - Right arc:   ITSEC module icon-nodes (orange)
+  - Bottom:      compact control cluster (Explore · Presentation · Command Team)
+  Tapping a node opens its command brief as a cinematic centered overlay; the team
+  lives on its own screen behind a single button (no crowded carousel here).
+  Keyboard: ESC closes · Arrow keys move focus around the ring · Enter opens.
 */
 
 const PRESENTATION_MS = 6000 // 6s per section (spec: 5-8s)
@@ -33,26 +34,63 @@ interface DashboardProps {
   onOpenTeam: () => void
 }
 
+/** Angular position (degrees, 0°=right, 90°=up) for each node on its arc. */
+function arcAngles(count: number, from: number, to: number): number[] {
+  if (count === 1) return [(from + to) / 2]
+  const step = (to - from) / (count - 1)
+  return Array.from({ length: count }, (_, i) => from + step * i)
+}
+
+// Left arc sweeps the left half; right arc sweeps the right half.
+// The ITSEC arc has 7 nodes vs SecureVisa's 6, so it uses a wider angular sweep
+// to keep the spacing (node density) visually consistent between the two sides.
+const RX = 38 // horizontal radius (% of ring area)
+const RY = 36 // vertical radius (% of ring area) — keeps bottom nodes clear of the controls
+
+interface Placed {
+  module: (typeof allModules)[number]
+  index: number
+  left: number
+  top: number
+}
+
 export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
   const { play } = useSound()
   const [selectedId, setSelectedId] = useState<string | null>(null)
-
-  // Keyboard focus model across the two rails.
-  const columns = [securevisaModules, itsecModules]
-  const [focus, setFocus] = useState<{ col: number; row: number }>({ col: 0, row: 0 })
+  const [focusIndex, setFocusIndex] = useState<number>(-1)
 
   // Presentation mode
   const [presenting, setPresenting] = useState(false)
   const [presPaused, setPresPaused] = useState(false)
   const presIndexRef = useRef(0)
 
-  const selectModule = useCallback(
-    (id: string) => {
-      setSelectedId(id)
-    },
-    [],
-  )
+  // Pre-compute node placements on the two arcs.
+  const placed = useMemo<Placed[]>(() => {
+    const out: Placed[] = []
+    const leftAngles = arcAngles(securevisaModules.length, 122, 238)
+    securevisaModules.forEach((m, i) => {
+      const a = (leftAngles[i] * Math.PI) / 180
+      out.push({
+        module: m,
+        index: out.length,
+        left: 50 + RX * Math.cos(a),
+        top: 50 - RY * Math.sin(a),
+      })
+    })
+    const rightAngles = arcAngles(itsecModules.length, 70, -70)
+    itsecModules.forEach((m, i) => {
+      const a = (rightAngles[i] * Math.PI) / 180
+      out.push({
+        module: m,
+        index: out.length,
+        left: 50 + RX * Math.cos(a),
+        top: 50 - RY * Math.sin(a),
+      })
+    })
+    return out
+  }, [])
 
+  const selectModule = useCallback((id: string) => setSelectedId(id), [])
   const closePanel = useCallback(() => setSelectedId(null), [])
 
   // ── Presentation controls ────────────────────────────────────────────────
@@ -85,7 +123,6 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
     if (!presenting || presPaused) return
     const t = setTimeout(() => presStep(1), PRESENTATION_MS)
     return () => clearTimeout(t)
-    // selectedId in deps so each advance re-arms the timer
   }, [presenting, presPaused, selectedId, presStep])
 
   // ── Keyboard handling ────────────────────────────────────────────────────
@@ -93,8 +130,10 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (presenting) stopPresentation()
-        else if (selectedId) closePanel()
-        play('panel-close')
+        else if (selectedId) {
+          play('panel-close')
+          closePanel()
+        }
         return
       }
       if (presenting) {
@@ -106,138 +145,133 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
         }
         return
       }
-      // Normal navigation
-      setFocus((prev) => {
-        let { col, row } = prev
-        if (e.key === 'ArrowLeft') col = 0
-        else if (e.key === 'ArrowRight') col = 1
-        else if (e.key === 'ArrowUp') row = Math.max(0, row - 1)
-        else if (e.key === 'ArrowDown') row = Math.min(columns[col].length - 1, row + 1)
-        else return prev
-        row = Math.min(row, columns[col].length - 1)
+      const n = allModules.length
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        setFocusIndex((i) => (i < 0 ? 0 : (i + 1) % n))
         play('hover-soft')
-        return { col, row }
-      })
-      if (e.key === 'Enter') {
-        const mod = columns[focus.col][focus.row]
-        if (mod) {
-          play('icon-select')
-          selectModule(mod.id)
-        }
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        setFocusIndex((i) => (i < 0 ? 0 : (i - 1 + n) % n))
+        play('hover-soft')
+      } else if (e.key === 'Enter' && focusIndex >= 0) {
+        play('icon-select')
+        selectModule(allModules[focusIndex].id)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presenting, selectedId, focus])
+  }, [presenting, selectedId, focusIndex])
 
   const selectedModule = allModules.find((m) => m.id === selectedId) ?? null
-  const panelSide = selectedModule?.org === 'itsec' ? 'right' : 'left'
+  const selectedPlaced = placed.find((p) => p.module.id === selectedId) ?? null
+  const accent = selectedModule?.org === 'itsec' ? '#ff7a30' : '#33d6ff'
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
-      {/* Main tri-column region */}
-      <div className="relative grid flex-1 grid-cols-[1fr_1.4fr_1fr] gap-4 overflow-hidden px-6 py-4">
-        {/* LEFT: SecureVisa */}
-        <div
-          className={`flex flex-col justify-center gap-2.5 overflow-y-auto py-2 pr-1 transition-opacity duration-500 ${
-            selectedModule && panelSide === 'right' ? 'opacity-40' : 'opacity-100'
-          }`}
-        >
-          <RailHeading label="SecureVisa Modules" accent="#33d6ff" />
-          {securevisaModules.map((m, i) => (
-            <OrbitalIcon
-              key={m.id}
-              module={m}
-              index={i}
-              align="left"
-              selected={selectedId === m.id}
-              focused={!presenting && focus.col === 0 && focus.row === i}
-              onSelect={selectModule}
-            />
-          ))}
+      {/* ── Orbital ring region ───────────────────────────────────────────── */}
+      <div className="relative flex-1">
+        {/* Faint org labels to orient the two arcs */}
+        <span className="pointer-events-none absolute left-8 top-6 font-display text-base font-bold uppercase tracking-[0.35em] text-sv-cyan/70 2xl:text-lg">
+          SecureVisa
+        </span>
+        <span className="pointer-events-none absolute right-8 top-6 font-display text-base font-bold uppercase tracking-[0.35em] text-sv-orange/70 2xl:text-lg">
+          ITSEC
+        </span>
+
+        {/* Decorative orbit rings behind the nodes */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="aspect-square h-[86%] animate-spin-slow rounded-full border border-sv-cyan/10" />
+        </div>
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div
+            className="aspect-square h-[70%] animate-spin-reverse rounded-full border border-dashed border-white/5"
+            style={{ animationDuration: '60s' }}
+          />
         </div>
 
-        {/* CENTER: core + actions OR panel */}
-        <div className="relative flex flex-col items-center justify-center">
-          {/* Data-line connectors from core to active side */}
-          <AnimatePresence>
-            {selectedModule && (
-              <ConnectorLines side={panelSide} />
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence mode="wait">
-            {!selectedModule ? (
-              <motion.div
-                key="core"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="flex flex-col items-center"
-              >
-                <HolographicCore onActivate={onExplore} />
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="mt-8 flex flex-wrap items-center justify-center gap-4"
-                >
-                  <ActionButton
-                    icon={<Compass className="h-7 w-7" />}
-                    label="Explore Ecosystem"
-                    onClick={() => {
-                      play('transition-whoosh')
-                      onExplore()
-                    }}
-                    primary
-                  />
-                  <ActionButton
-                    icon={<PlayCircle className="h-7 w-7" />}
-                    label="Presentation Mode"
-                    onClick={startPresentation}
-                  />
-                </motion.div>
-                <p className="mt-6 max-w-md text-center text-lg text-white/45">
-                  Tap a module to reveal its command brief · Use arrow keys and Enter to navigate
-                </p>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="panel"
-                className="h-[calc(100%-1rem)] w-full max-w-3xl"
-              >
-                <InfoPanel module={selectedModule} onClose={closePanel} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+        {/* Central core */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <HolographicCore active={Boolean(selectedModule)} onActivate={onExplore} />
         </div>
 
-        {/* RIGHT: ITSEC */}
-        <div
-          className={`flex flex-col justify-center gap-2.5 overflow-y-auto py-2 pl-1 transition-opacity duration-500 ${
-            selectedModule && panelSide === 'left' ? 'opacity-40' : 'opacity-100'
-          }`}
-        >
-          <RailHeading label="ITSEC Modules" accent="#ff7a30" align="right" />
-          {itsecModules.map((m, i) => (
-            <OrbitalIcon
-              key={m.id}
-              module={m}
-              index={i}
-              align="right"
-              selected={selectedId === m.id}
-              focused={!presenting && focus.col === 1 && focus.row === i}
-              onSelect={selectModule}
-            />
-          ))}
-        </div>
+        {/* Module nodes on the ring */}
+        {placed.map((p) => (
+          <OrbitalIcon
+            key={p.module.id}
+            module={p.module}
+            index={p.index}
+            selected={selectedId === p.module.id}
+            focused={!presenting && focusIndex === p.index}
+            dimmed={Boolean(selectedModule) && selectedId !== p.module.id}
+            onSelect={selectModule}
+            style={{ left: `${p.left}%`, top: `${p.top}%` }}
+          />
+        ))}
       </div>
 
-      {/* Bottom team carousel */}
-      <TeamCarousel onOpenTeam={onOpenTeam} />
+      {/* ── Bottom control cluster ────────────────────────────────────────── */}
+      <div className="relative z-10 flex items-center justify-center gap-5 pb-6 pt-2">
+        <ActionButton
+          icon={<Compass className="h-7 w-7" />}
+          label="Explore Ecosystem"
+          onClick={() => {
+            play('transition-whoosh')
+            onExplore()
+          }}
+          primary
+        />
+        <ActionButton
+          icon={<PlayCircle className="h-7 w-7" />}
+          label="Presentation Mode"
+          onClick={startPresentation}
+        />
+        <ActionButton
+          icon={<Users className="h-7 w-7" />}
+          label="Command Team"
+          onClick={() => {
+            play('icon-select')
+            onOpenTeam()
+          }}
+        />
+      </div>
 
-      {/* Presentation control bar */}
+      {/* ── Cinematic panel overlay ───────────────────────────────────────── */}
+      <AnimatePresence>
+        {selectedModule && (
+          <motion.div
+            key="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 z-30 flex items-center justify-center bg-void/70 px-6 backdrop-blur-md"
+            onClick={() => {
+              if (!presenting) {
+                play('panel-close')
+                closePanel()
+              }
+            }}
+          >
+            {/* Data line from core → selected node */}
+            {selectedPlaced && (
+              <ConnectorLine
+                left={selectedPlaced.left}
+                top={selectedPlaced.top}
+                accent={accent}
+              />
+            )}
+
+            <div
+              className="relative h-[80%] w-full max-w-4xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <InfoPanel module={selectedModule} onClose={closePanel} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Presentation control bar ──────────────────────────────────────── */}
       <AnimatePresence>
         {presenting && (
           <motion.div
@@ -272,31 +306,6 @@ export default function Dashboard({ onExplore, onOpenTeam }: DashboardProps) {
 }
 
 /* ── Small presentational helpers ─────────────────────────────────────────── */
-
-function RailHeading({
-  label,
-  accent,
-  align = 'left',
-}: {
-  label: string
-  accent: string
-  align?: 'left' | 'right'
-}) {
-  return (
-    <div className={`mb-1 px-2 ${align === 'right' ? 'text-right' : ''}`}>
-      <h2
-        className="font-display text-lg font-bold uppercase tracking-[0.2em] 2xl:text-xl"
-        style={{ color: accent }}
-      >
-        {label}
-      </h2>
-      <div
-        className="mt-1 h-[2px] w-full rounded-full"
-        style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }}
-      />
-    </div>
-  )
-}
 
 function ActionButton({
   icon,
@@ -341,35 +350,33 @@ function CtrlButton({
   )
 }
 
-/** Animated connector lines from the core to the active rail side. */
-function ConnectorLines({ side }: { side: 'left' | 'right' }) {
+/** Animated data line from the core (screen center) to the selected node. */
+function ConnectorLine({
+  left,
+  top,
+  accent,
+}: {
+  left: number
+  top: number
+  accent: string
+}) {
   return (
-    <motion.svg
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="pointer-events-none absolute inset-0 h-full w-full"
-      preserveAspectRatio="none"
-    >
-      {[30, 50, 70].map((y, i) => {
-        const x2 = side === 'left' ? '-6%' : '106%'
-        return (
-          <motion.line
-            key={i}
-            x1="50%"
-            y1="50%"
-            x2={x2}
-            y2={`${y}%`}
-            stroke={side === 'left' ? '#33d6ff' : '#ff7a30'}
-            strokeWidth="1.5"
-            strokeDasharray="6 8"
-            initial={{ strokeDashoffset: 0 }}
-            animate={{ strokeDashoffset: -140 }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'linear' }}
-            opacity={0.5}
-          />
-        )
-      })}
-    </motion.svg>
+    <svg className="pointer-events-none absolute inset-0 h-full w-full" preserveAspectRatio="none">
+      <motion.line
+        x1="50%"
+        y1="50%"
+        x2={`${left}%`}
+        y2={`${top}%`}
+        stroke={accent}
+        strokeWidth="1.5"
+        strokeDasharray="5 9"
+        initial={{ strokeDashoffset: 0, opacity: 0 }}
+        animate={{ strokeDashoffset: -140, opacity: 0.5 }}
+        transition={{
+          strokeDashoffset: { duration: 2.5, repeat: Infinity, ease: 'linear' },
+          opacity: { duration: 0.4 },
+        }}
+      />
+    </svg>
   )
 }
