@@ -27,10 +27,23 @@ export default function App() {
     setThemeIndex((i) => (i + 1) % THEMES.length)
   }, [play])
 
-  // Unlock the Web Audio context on the first user gesture (browser requirement).
+  // On the FIRST user gesture: unlock audio AND enter fullscreen (kiosk mode —
+  // hides the browser tab/URL bar). Browsers only allow fullscreen from a user
+  // gesture, so this fires on the first tap/click/keypress rather than on load.
   useEffect(() => {
     const onFirst = () => {
       unlock()
+      const el = document.documentElement as HTMLElement & {
+        webkitRequestFullscreen?: () => Promise<void>
+      }
+      if (!document.fullscreenElement) {
+        const req = el.requestFullscreen?.bind(el) ?? el.webkitRequestFullscreen?.bind(el)
+        try {
+          void req?.()
+        } catch {
+          /* fullscreen may be blocked (e.g. inside an iframe) — F11 still works */
+        }
+      }
       window.removeEventListener('pointerdown', onFirst)
       window.removeEventListener('keydown', onFirst)
     }
