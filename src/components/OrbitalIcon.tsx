@@ -60,29 +60,29 @@ export default function OrbitalIcon({
       className="group absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 outline-none"
       style={style}
     >
-      {/* Icon medallion */}
+      {/* Icon medallion — soft-rounded square */}
       <span
-        className={`relative flex h-[5.75rem] w-[5.75rem] items-center justify-center rounded-full transition-all duration-300 ${
+        className={`relative flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-2xl transition-all duration-300 ${
           active ? 'glass-strong' : 'glass'
         }`}
         style={{
           border: `1px solid ${accent}${active ? 'aa' : '55'}`,
           boxShadow: active
-            ? `0 0 46px ${accent}77, inset 0 0 26px ${accent}33`
-            : `0 0 18px ${accent}22`,
+            ? `0 0 40px ${accent}77, inset 0 0 22px ${accent}33`
+            : `0 0 16px ${accent}22`,
         }}
       >
-        {/* Rotating focus ring */}
+        {/* Focus ring */}
         {active && (
           <motion.span
-            className="absolute inset-[-8px] rounded-full border border-dashed"
+            className="absolute inset-[-7px] rounded-2xl border border-dashed"
             style={{ borderColor: `${accent}88` }}
             animate={{ rotate: 360 }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
           />
         )}
         <Icon
-          className="h-10 w-10 transition-transform duration-300 group-hover:scale-110"
+          className="h-8 w-8 transition-transform duration-300 group-hover:scale-110"
           style={{ color: accent }}
           strokeWidth={1.6}
         />
@@ -90,7 +90,7 @@ export default function OrbitalIcon({
 
       {/* Short caption */}
       <span
-        className={`max-w-[8.5rem] text-center font-display text-[0.95rem] font-bold uppercase leading-tight tracking-wide transition-colors 2xl:text-base ${
+        className={`max-w-[7.5rem] text-center font-display text-[0.82rem] font-bold uppercase leading-tight tracking-wide transition-colors 2xl:text-[0.95rem] ${
           active ? 'text-white text-glow' : 'text-white/70'
         }`}
       >

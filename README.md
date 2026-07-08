@@ -74,11 +74,13 @@ Tips for a permanent 4K touch kiosk:
 
 | Action | Control |
 | --- | --- |
-| Open a module brief | **Tap** a module icon node on the orbital ring (SecureVisa left / ITSEC right) |
+| **Open / close the module ring** | **Tap the holographic CORE** — modules stay hidden on the clean start over the UAE‑flag backdrop and fan out (with data lines to the core) when tapped |
+| Open a module brief | **Tap** a module icon node on the ring (SecureVisa left / ITSEC right) |
 | Close a panel | **Tap ✕**, tap the dimmed backdrop, or press **Esc** |
+| Collapse the ring | **Esc** (when no panel is open) |
 | Move focus around the ring | **Arrow keys** (← / ↑ previous node, → / ↓ next node) |
 | Open the focused node | **Enter** |
-| Explore Ecosystem | Bottom button, or tap the holographic **CORE** |
+| Explore Ecosystem | Bottom button |
 | Team Command grid | **Command Team** button (bottom controls) — opens its own page |
 | Presentation Mode | Center button — auto‑plays every module (~6 s each) with prev / pause / next / exit; **Space** pauses, **← / →** step, **Esc** exits |
 | Fullscreen / kiosk | ⤢ button (top‑right) |
@@ -112,8 +114,16 @@ public/assets/
 │   ├── jessa-pastor.webp
 │   ├── john-montilla.webp
 │   └── manuelito-victoria.webp
+├── video/
+│   └── uae-flag.mp4               ← starting/background video (dashboard backdrop)
 └── sounds/                        ← OPTIONAL (see below)
 ```
+
+### Background video
+The dashboard's clean start screen plays **`public/assets/video/uae-flag.mp4`** as a
+prominent backdrop (dimmed once the module ring opens). Replace that file (same name) to
+change it. Use a web‑friendly **H.264/AAC MP4**; the element is muted + looped for
+autoplay. If a browser can't decode the file, it falls back to the dark navy background.
 
 ### Logos
 Replace the files in `public/assets/logos/`. If an image is missing, the UI shows a
