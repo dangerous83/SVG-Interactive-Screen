@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Minus, Plus, ZoomIn } from 'lucide-react'
+import { Maximize2, Minimize2, Minus, Plus, ZoomIn } from 'lucide-react'
 import CyberBackground from './components/CyberBackground'
 import BootScreen from './components/BootScreen'
 import Dashboard from './components/Dashboard'
@@ -156,9 +156,39 @@ export default function App() {
             onIn={zoomIn}
             onOut={zoomOut}
           />
+
+          {/* Fullscreen button (top-right) — hides the browser tab bar */}
+          <FullscreenButton isFullscreen={isFullscreen} onToggle={toggleFullscreen} />
         </>
       )}
     </div>
+  )
+}
+
+/** Top-right fullscreen toggle — enters browser fullscreen (no tab/URL bar). */
+function FullscreenButton({
+  isFullscreen,
+  onToggle,
+}: {
+  isFullscreen: boolean
+  onToggle: () => void
+}) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.9 }}
+      onClick={onToggle}
+      aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+      className="glass-strong holo-border fixed right-6 top-6 z-50 flex min-h-[60px] min-w-[60px] flex-col items-center justify-center gap-0.5 rounded-2xl text-white/85"
+    >
+      {isFullscreen ? (
+        <Minimize2 className="h-6 w-6 text-sv-cyan" />
+      ) : (
+        <Maximize2 className="h-6 w-6" />
+      )}
+      <span className="font-display text-[0.55rem] font-bold uppercase tracking-[0.12em]">
+        {isFullscreen ? 'Exit' : 'Full'}
+      </span>
+    </motion.button>
   )
 }
 
