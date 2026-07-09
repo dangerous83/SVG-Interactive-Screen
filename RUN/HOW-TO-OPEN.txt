@@ -1,0 +1,24 @@
+SecureVisa x ITSEC - Interactive Command Center
+================================================
+
+TO OPEN (fullscreen, offline):
+
+  1. Double-click  OPEN-COMMAND-CENTER.bat
+     -> It opens the interface fullscreen in Chrome or Edge.
+
+  2. To exit fullscreen: press  Alt + F4
+
+Alternative:
+  - You can also double-click  index.html  to open it in a normal
+    browser window, then tap once to go fullscreen.
+
+Notes:
+  - Everything runs from this folder. Keep index.html, the assets
+    folder, and OPEN-COMMAND-CENTER.bat together.
+  - No internet needed. (Display fonts look best with internet, but
+    the app falls back to system fonts offline.)
+
+Make a desktop shortcut with an icon:
+  - Right-click OPEN-COMMAND-CENTER.bat -> Send to -> Desktop (create shortcut)
+  - Right-click the new shortcut -> Properties -> Change Icon...
+  - Browse to  assets\logos\favicon.png  (or any .ico) and choose it.
