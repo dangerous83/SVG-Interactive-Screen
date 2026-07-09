@@ -6,6 +6,7 @@ import OrbitalIcon from './OrbitalIcon'
 import InfoPanel from './InfoPanel'
 import CommandDock, { type ThemeName } from './CommandDock'
 import CyberScene from './CyberScene'
+import CompanyWidgets from './CompanyWidgets'
 import { useSound } from '../hooks/useSound'
 
 /*
@@ -194,6 +195,9 @@ export default function Dashboard({
         />
         <div className="absolute inset-0 bg-gradient-to-b from-void/40 via-transparent to-void/70" />
       </div>
+
+      {/* ── SecureVisa / ITSEC side widgets (company info dropdowns) ───────── */}
+      <CompanyWidgets />
 
       {/* ── Orbital ring region ───────────────────────────────────────────── */}
       <div className="relative z-10 flex-1">
