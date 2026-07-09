@@ -80,6 +80,7 @@ Tips for a permanent 4K touch kiosk:
 | Collapse the ring | **Esc** (when no panel is open) |
 | Move focus around the ring | **Arrow keys** (← / ↑ previous node, → / ↓ next node) |
 | Open the focused node | **Enter** |
+| Company info (SecureVisa / ITSEC) | Tap the **side widget** on the left (SecureVisa) or right (ITSEC) — opens a dropdown with About · Services · Solutions · CEO |
 | Command dock (appears with the ring) | **Home** (collapse to clean start) · **Team** (employees page) · **Theme** (cycle backdrop mood) · **Settings** · **Volume** · **Keyboards** (shortcuts) · **Search** |
 | Search modules | **Search** in the dock — command‑palette style; tap a result to open its brief |
 | Ecosystem Map / Team Command | **Settings → Views** in the dock |

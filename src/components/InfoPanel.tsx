@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Check, X } from 'lucide-react'
 import type { CommandModule } from '../data/modules'
-import { members } from '../data/team'
 import { useSound } from '../hooks/useSound'
-import MemberAvatar from './MemberAvatar'
 
 /*
   Cinematic module panel. On open it runs a ~0.4s "loading scan" before revealing
@@ -30,9 +28,6 @@ export default function InfoPanel({ module, onClose }: InfoPanelProps) {
   }, [module, play])
 
   const accent = module?.org === 'securevisa' ? '#33d6ff' : '#ff7a30'
-  const related = module
-    ? members.filter((m) => module.related.includes(m.id))
-    : []
   const Icon = module?.icon
 
   return (
@@ -147,32 +142,6 @@ export default function InfoPanel({ module, onClose }: InfoPanelProps) {
                 </motion.div>
               ))}
             </div>
-
-            {/* Related members */}
-            {related.length > 0 && (
-              <div className="mt-8">
-                <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-white/50">
-                  Related Team
-                </h3>
-                <div className="flex flex-wrap gap-4">
-                  {related.map((m) => (
-                    <div
-                      key={m.id}
-                      className="glass flex items-center gap-3 rounded-2xl p-2 pr-5"
-                    >
-                      <MemberAvatar
-                        member={m}
-                        className="h-14 w-14 rounded-xl"
-                      />
-                      <div>
-                        <div className="font-semibold text-white">{m.name}</div>
-                        <div className="text-sm text-white/55">{m.role}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </motion.div>
 
           {/* CTA footer */}
