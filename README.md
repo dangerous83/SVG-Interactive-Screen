@@ -68,6 +68,27 @@ Tips for a permanent 4K touch kiosk:
 - To serve the build persistently, run `npm run preview -- --port 4173` (or any static
   file server) and point the kiosk shortcut at it.
 
+### Run from a USB flash drive (no internet, no server)
+
+The production build is **self‑contained** — `npm run build` inlines all app code into a
+single `dist/index.html`, so it runs straight from a USB drive with **no web server**.
+
+1. Run `npm run build`.
+2. Copy the **entire `dist/` folder** onto the flash drive (it contains `index.html`, the
+   `assets/` folder with the video/photos/logos, and `Launch-Command-Center.bat`).
+3. On the interactive PC, open the `dist` folder on the drive and **double‑click
+   `Launch-Command-Center.bat`** — it opens the interface **fullscreen (kiosk)** in Chrome
+   or Edge automatically. (To exit kiosk: **Alt+F4**.)
+   - You can also just double‑click **`index.html`** to open it in a normal browser window,
+     then tap once to go fullscreen.
+   - Tip: right‑click `Launch-Command-Center.bat` → **Send to → Desktop (create shortcut)**,
+     then in the shortcut's Properties → **Change Icon** you can set `assets/logos/favicon.png`
+     (or any `.ico`) so it appears as a branded app icon.
+
+> Why the launcher: opening a compiled web app directly over `file://` normally shows a
+> blank page because browsers block its JavaScript modules there. This build is inlined to
+> avoid that, and the launcher adds the browser flags that let the local video play in kiosk.
+
 ---
 
 ## 3. Controls & interaction
