@@ -9,9 +9,13 @@
 */
 
 :root {
-  /* Fluid base size: ~16px at 1080p, ~20px+ on 4K */
-  font-size: clamp(15px, 0.83vw, 26px);
+  /* Accessibility zoom multiplier (set from the on-screen A-/A+ control). */
+  --zoom: 1;
+  /* Fluid base size (~16px at 1080p, ~20px+ on 4K) × zoom → the whole rem-based
+     UI scales together, consistently, for readability from a distance. */
+  font-size: calc(clamp(15px, 0.83vw, 26px) * var(--zoom));
   color-scheme: dark;
+  transition: font-size 0.25s ease;
 }
 
 * {
