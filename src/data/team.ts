@@ -174,26 +174,6 @@ export const members: Member[] = [
     expertise: ['Penetration Testing', 'Security Architecture', 'vCISO', 'Incident Response'],
   },
   {
-    id: 'kashif-it',
-    name: 'Kashif Akhtar',
-    role: 'Governance, Risk & Compliance',
-    org: 'itsec',
-    categories: ['Compliance', 'Cybersecurity'],
-    photo: null, // TODO: add /public/assets/team/kashif-akhtar.webp
-    blurb: 'Aligns security controls with regulatory and audit expectations.',
-    expertise: ['GRC', 'Audit Readiness', 'Control Mapping', 'ISO 27001'],
-  },
-  {
-    id: 'anas-it',
-    name: 'Anas Thajudeen',
-    role: 'Network Security Engineer / IT',
-    org: 'itsec',
-    categories: ['Cybersecurity', 'Operations'],
-    photo: null, // TODO: add /public/assets/team/anas-thajudeen.webp
-    blurb: 'Hardens network infrastructure and defensive tooling.',
-    expertise: ['Network Security', 'Infrastructure', 'Hardening', 'Monitoring'],
-  },
-  {
     id: 'alvin-it',
     name: 'Alvin Jampazar',
     role: 'Marketing Manager',
@@ -209,7 +189,7 @@ export const members: Member[] = [
     role: 'Software Engineer / IT',
     org: 'itsec',
     categories: ['Cybersecurity', 'Operations'],
-    photo: null, // TODO: add /public/assets/team/hassan-razeen.webp
+    photo: P('hassan-razeen'),
     blurb: 'Builds secure tooling and automation for assessment workflows.',
     expertise: ['Software Engineering', 'Automation', 'Secure Development'],
   },

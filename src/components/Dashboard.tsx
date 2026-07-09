@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Eye, EyeOff } from 'lucide-react'
 import { securevisaModules, itsecModules, allModules } from '../data/modules'
 import HolographicCore from './HolographicCore'
 import OrbitalIcon from './OrbitalIcon'
@@ -69,6 +70,7 @@ export default function Dashboard({
   const [revealed, setRevealed] = useState(false) // modules hidden until the core is tapped
   const [bgOn, setBgOn] = useState(true) // background on/off
   const [videoOk, setVideoOk] = useState(true) // false once the video errors (use cyber fallback)
+  const [cleanView, setCleanView] = useState(false) // show ONLY the video, no overlay/HUD
 
   // Pre-compute node placements on the two arcs.
   const placed = useMemo<Placed[]>(() => {
@@ -187,19 +189,31 @@ export default function Dashboard({
           ) : (
             <CyberScene />
           ))}
-        {/* Legibility overlay — a bit stronger once the ring opens so icons stay crisp */}
+        {/* Legibility overlay — removed entirely in clean view (video only) */}
         <motion.div
           className="absolute inset-0"
-          animate={{ backgroundColor: revealed ? 'rgba(3,6,15,0.6)' : 'rgba(3,6,15,0.3)' }}
-          transition={{ duration: 0.7 }}
+          animate={{
+            backgroundColor: cleanView
+              ? 'rgba(3,6,15,0)'
+              : revealed
+                ? 'rgba(3,6,15,0.6)'
+                : 'rgba(3,6,15,0.3)',
+          }}
+          transition={{ duration: 0.5 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-void/40 via-transparent to-void/70" />
+        {!cleanView && (
+          <div className="absolute inset-0 bg-gradient-to-b from-void/40 via-transparent to-void/70" />
+        )}
       </div>
 
+      {/* Clean-view toggle — shows only the video background (no overlay / HUD) */}
+      <CleanViewToggle on={cleanView} onToggle={() => { play('icon-select'); setCleanView((v) => !v) }} />
+
       {/* ── SecureVisa / ITSEC side widgets (company info dropdowns) ───────── */}
-      <CompanyWidgets />
+      {!cleanView && <CompanyWidgets />}
 
       {/* ── Orbital ring region ───────────────────────────────────────────── */}
+      {!cleanView && (
       <div className="relative z-10 flex-1">
         {/* Decorative orbit rings behind the nodes (static) */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -276,8 +290,10 @@ export default function Dashboard({
             ))}
         </AnimatePresence>
       </div>
+      )}
 
       {/* ── Command dock (raised with the ring) ───────────────────────────── */}
+      {!cleanView && (
       <div className="relative z-20 flex items-center justify-center pb-6 pt-2">
         <AnimatePresence>
           {revealed && (
@@ -298,10 +314,11 @@ export default function Dashboard({
           )}
         </AnimatePresence>
       </div>
+      )}
 
       {/* ── Cinematic panel overlay ───────────────────────────────────────── */}
       <AnimatePresence>
-        {selectedModule && (
+        {!cleanView && selectedModule && (
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
@@ -324,6 +341,24 @@ export default function Dashboard({
         )}
       </AnimatePresence>
     </div>
+  )
+}
+
+/** Small toggle that hides the overlay + HUD to show ONLY the video background. */
+function CleanViewToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <motion.button
+      onClick={onToggle}
+      whileTap={{ scale: 0.9 }}
+      aria-label={on ? 'Exit clean view' : 'Show only the video background'}
+      className="glass-strong holo-border fixed bottom-6 right-6 z-50 flex min-h-[64px] min-w-[64px] flex-col items-center justify-center gap-1 rounded-2xl px-4 text-white/85"
+      style={{ boxShadow: on ? '0 0 26px rgba(51,214,255,0.5)' : undefined }}
+    >
+      {on ? <EyeOff className="h-6 w-6 text-sv-cyan" /> : <Eye className="h-6 w-6" />}
+      <span className="font-display text-[0.6rem] font-bold uppercase tracking-[0.15em]">
+        {on ? 'Exit' : 'Video'}
+      </span>
+    </motion.button>
   )
 }
 

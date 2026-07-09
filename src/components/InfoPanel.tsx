@@ -144,24 +144,26 @@ export default function InfoPanel({ module, onClose }: InfoPanelProps) {
             </div>
           </motion.div>
 
-          {/* CTA footer */}
-          <div className="border-t border-white/10 p-6">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => play('success-confirm')}
-              className="touch-target flex w-full items-center justify-center gap-3 rounded-2xl px-8 text-xl font-bold tracking-wide text-void"
-              style={{
-                background: `linear-gradient(120deg, ${accent}, ${
-                  module.org === 'securevisa' ? '#0075c9' : '#d2451e'
-                })`,
-                boxShadow: `0 0 40px ${accent}66`,
-              }}
-            >
-              {module.cta}
-              <ArrowRight className="h-6 w-6" />
-            </motion.button>
-          </div>
+          {/* CTA footer — only when the section defines a CTA (info-only sections omit it) */}
+          {module.cta && (
+            <div className="border-t border-white/10 p-6">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => play('success-confirm')}
+                className="touch-target flex w-full items-center justify-center gap-3 rounded-2xl px-8 text-xl font-bold tracking-wide text-void"
+                style={{
+                  background: `linear-gradient(120deg, ${accent}, ${
+                    module.org === 'securevisa' ? '#0075c9' : '#d2451e'
+                  })`,
+                  boxShadow: `0 0 40px ${accent}66`,
+                }}
+              >
+                {module.cta}
+                <ArrowRight className="h-6 w-6" />
+              </motion.button>
+            </div>
+          )}
         </motion.aside>
       )}
     </AnimatePresence>

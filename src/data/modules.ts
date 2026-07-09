@@ -53,7 +53,7 @@ export const securevisaModules: CommandModule[] = [
       'Strategic & executive advisory',
       'End-to-end UAE market execution',
     ],
-    cta: 'Download Company Profile',
+    cta: '', // interactive kiosk for client explanation — no download button
     icon: Building2,
     related: ['amir-sv', 'esmaeil-sv', 'kassey-sv'],
   },
